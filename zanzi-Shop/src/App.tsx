@@ -1,9 +1,14 @@
 import { Grid, GridItem, Heading } from '@chakra-ui/react'
 import NavBar from './components/NavBar'
 import { BrowserRouter as Routes } from 'react-router-dom'
+import { useState } from 'react';
+
+export interface ProductQuery {
+  search: string;
+}
 
 function App() {
-
+const [productQuery, setProductQuery] = useState<ProductQuery>({} as ProductQuery);
   return (
 
     <Routes>
@@ -15,7 +20,7 @@ function App() {
         }}
       >
         <GridItem area="nav" color={'white'} bg={'gray.800'} p={5}>
-          <NavBar />
+          <NavBar onSearch={(search) => setProductQuery({...productQuery, search})} />
         </GridItem>
         {/* <Show above="base"> */}
           <GridItem area="aside" px={5} color={'white'} bg={'gray.400'}>

@@ -1,44 +1,38 @@
-import React from "react";
 import { useCart } from "../hooks/useCart";
-import { Badge, Box, Button, Flex, Link } from "@chakra-ui/react";
+import { Badge, Box, Button, Link, Image, HStack } from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
+import logo from "../assets/logo.png";
+import SearchInput from "./SearchInput";
 
-const NavBar: React.FC = () => {
+interface NavBarProps {
+  onSearch: (search: string) => void;
+}
+
+const NavBar = ({ onSearch }: NavBarProps) => {
   const { items } = useCart();
 
   return (
-    <Box bg={"teal.500"} color={"white"} px={4} py={3}>
-      <Flex
-        maxW="container.xl"
-        mx="auto"
-        justify="space-between"
-        align="center"
+    <HStack padding="3px" color="white">
+      <Link asChild color="white">
+        <RouterLink to="/">
+          <Image src={logo} boxSize="60px" rounded={100} />
+        </RouterLink>
+      </Link>
+      <SearchInput onSearch={onSearch} />
+      <Button
+        asChild
+        colorScheme="whiteAlpha"
+        color="white"
+        variant={"outline"}
       >
-        <Flex gap={4}>
-          <Link asChild color="white">
-            <RouterLink to="/">Home</RouterLink>
-          </Link>
-          <Link asChild color="white">
-            <RouterLink to="/products">Products</RouterLink>
-          </Link>
-          <Flex gap={4} align="center">
-            <Button
-              asChild
-              colorScheme="whiteAlpha"
-              color="white"
-              variant={"outline"}
-            >
-              <RouterLink to="/cart">
-                <Box display="flex" alignItems="center" gap={2}>
-                  <span>Cart</span>
-                  <Badge>{items.length}</Badge>
-                </Box>
-              </RouterLink>
-            </Button>
-          </Flex>
-        </Flex>
-      </Flex>
-    </Box>
+        <RouterLink to="/cart">
+          <Box display="flex" alignItems="center" gap={2}>
+            <span>Cart</span>
+            <Badge>{items.length}</Badge>
+          </Box>
+        </RouterLink>
+      </Button>
+    </HStack>
   );
 };
 
