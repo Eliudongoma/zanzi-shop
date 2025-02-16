@@ -14,7 +14,7 @@ const SearchInput: React.FC<SearchInputProps> = ({ onSearch }: SearchInputProps)
       e.preventDefault();
       onSearch(ref.current?.value ?? "");
     }}>
-      <InputGroup flex={1} startElement= {<BsSearch />}>
+      <InputGroup flex={1} startElement= {<BsSearch />} w={{ md: "400px", lg: "900px" }} display={{ base: "none", md: "flex", lg: "flex" }}>
       <Input
           ref={ref}
           borderRadius={20}
