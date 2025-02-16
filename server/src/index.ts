@@ -1,8 +1,8 @@
 import express from "express";
 import cors from "cors";
-import mongoose from "mongoose";
-import productRoutes from "./routes/products";
-import config from "../config";
+import productRoutes from "./routes/products.js";
+import config from "./config.js";
+import { connectDB } from "./data/db.js";
 
 const app = express();
 
@@ -10,13 +10,9 @@ app.use(cors());
 app.use(express.json());
 const { PORT, MONGO_URI } = config;
 
-mongoose
-  .connect(MONGO_URI)
-  .then(() => {
-    console.log(`Server running on http://localhost:${PORT}`);
-  })
-  .catch((error) => {
-    console.log(error);
+connectDB()
+  app.get("/", (req, res) => {
+    res.send("Server is running!");
   });
 
 app.use("/products", productRoutes);

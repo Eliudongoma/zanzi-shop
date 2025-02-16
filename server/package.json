@@ -4,8 +4,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "start": "node --trace-warnings ts-node/esm src/index.ts",
-    "dev": "nodemon --exec node --trace-warnings ts-node/esm src/index.ts"
+    "start": "ts-node-esm src/index.ts",
+    "dev": "nodemon --exec ts-node-esm src/index.ts",
+    "build": "tsc && node dist/index.js"
   },
   "keywords": [],
   "author": "",
@@ -15,15 +16,15 @@
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "mongoose": "^8.10.1",
-    "ts-node": "^10.9.2",
-    "typescript": "^5.7.3"
+    "mongoose": "^8.10.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.17",
     "@types/dotenv": "^8.2.3",
     "@types/express": "^5.0.0",
     "@types/node": "^22.13.4",
-    "nodemon": "^3.1.9"
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.3"
   }
 }
