@@ -20,7 +20,7 @@ function App() {
           lg: "200px 1fr",
         }}
       >
-        <GridItem area="nav" color={"white"} bg={"gray.800"} p={5}>
+        <GridItem area="nav" color={"white"} p={5}>
           <NavBar
             onSearch={(search) => setProductQuery({ ...productQuery, search })}
           />

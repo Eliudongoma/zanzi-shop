@@ -4,6 +4,9 @@ import { Link as RouterLink } from "react-router-dom";
 import logo from "../assets/logo.png";
 import SearchInput from "./SearchInput";
 import { BsCart } from "react-icons/bs";
+import { ColorModeButton } from "./ui/color-mode";
+import { useCustomColor } from "../hooks/useCustomColor";
+
 
 interface NavBarProps {
   onSearch: (search: string) => void;
@@ -11,10 +14,11 @@ interface NavBarProps {
 
 const NavBar = ({ onSearch }: NavBarProps) => {
   const { items } = useCart();
+  const {bgColor,textColor}=useCustomColor();
 
   return (
-    <HStack padding="3px" color="white" justifyContent={"space-between"}>
-        <Link asChild color="white">
+    <HStack bg={bgColor} padding="3px" color={textColor} justifyContent={"space-between"}>
+        <Link asChild color={textColor} >
           <RouterLink to="/">
             <Image src={logo} boxSize="60px" rounded={100} />
           </RouterLink>
@@ -23,7 +27,7 @@ const NavBar = ({ onSearch }: NavBarProps) => {
       <Button
         asChild
         colorScheme="whiteAlpha"
-        color="white"
+        color={textColor}
         variant={"outline"}
       >
         <RouterLink to="/cart">
@@ -33,6 +37,7 @@ const NavBar = ({ onSearch }: NavBarProps) => {
           </Box>
         </RouterLink>
       </Button>
+      <ColorModeButton/>
     </HStack>
   );
 };
