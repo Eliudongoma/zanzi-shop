@@ -7,17 +7,16 @@ import { BsCart } from "react-icons/bs";
 import { ColorModeButton } from "./ui/color-mode";
 import { useCustomColor } from "../hooks/useCustomColor";
 
-
 interface NavBarProps {
   onSearch: (search: string) => void;
 }
 
 const NavBar = ({ onSearch }: NavBarProps) => {
   const { items } = useCart();
-  const {bgColor,textColor}=useCustomColor();
+  const {textColor, buttonBg, borderColor, bgColor, buttonText}=useCustomColor();
 
   return (
-    <HStack bg={bgColor} padding="3px" color={textColor} justifyContent={"space-between"}>
+    <HStack padding="3px" color={textColor} bg={bgColor} justifyContent={"space-between"}>
         <Link asChild color={textColor} >
           <RouterLink to="/">
             <Image src={logo} boxSize="60px" rounded={100} />
@@ -26,18 +25,16 @@ const NavBar = ({ onSearch }: NavBarProps) => {
       <SearchInput onSearch={onSearch} />
       <Button
         asChild
-        colorScheme="whiteAlpha"
-        color={textColor}
-        variant={"outline"}
+        bg={buttonBg} color={buttonText} _hover={{ opacity: 0.8 }}
       >
         <RouterLink to="/cart">
           <Box display="flex" alignItems="center">
             <BsCart/>
-            <Badge rounded={40}>{items.length}</Badge>
+            <Badge color={textColor} rounded={40}>{items.length}</Badge>
           </Box>
         </RouterLink>
       </Button>
-      <ColorModeButton/>
+      <ColorModeButton borderColor={borderColor} rounded={20}/>
     </HStack>
   );
 };
