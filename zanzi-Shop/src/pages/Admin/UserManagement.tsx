@@ -68,7 +68,7 @@ const ProductManagement = () => {
           {products.map(product => (
             <Table.Row key={product._id}>
               <Table.Cell>{product.name}</Table.Cell>
-              <Table.Cell>${product.price}</Table.Cell>
+              <Table.Cell>ksh{product.price}</Table.Cell>
               <Table.Cell>{product.stock}</Table.Cell>
               <Table.Cell>
                 <Button size="sm" mr={2} onClick={() => handleEdit(product)}>
@@ -86,7 +86,7 @@ const ProductManagement = () => {
       <DialogRoot open={open} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          {editingProduct ? "Edit Product" : "Add New Product"}
+          {editingProduct ? "Edit Product" : "Add New User"}
         </DialogHeader>
         {/* <DialogTrigger /> */}
         <DialogBody>
