@@ -1,5 +1,12 @@
 import { useCart } from "../hooks/useCart";
-import { Badge, Box, Button, Link, Image, HStack } from "@chakra-ui/react";
+import {
+  Box,
+  Link,
+  Image,
+  HStack,
+  Float,
+  Circle,
+} from "@chakra-ui/react";
 import { Link as RouterLink } from "react-router-dom";
 import logo from "../assets/logo.png";
 import SearchInput from "./SearchInput";
@@ -13,28 +20,36 @@ interface NavBarProps {
 
 const NavBar = ({ onSearch }: NavBarProps) => {
   const { items } = useCart();
-  const {textColor, buttonBg, borderColor, bgColor, buttonText}=useCustomColor();
+  const { textColor, accentColor, borderColor, bgColor } =
+    useCustomColor();
 
   return (
-    <HStack padding="3px" color={textColor} bg={bgColor} justifyContent={"space-between"}>
-        <Link asChild color={textColor} >
-          <RouterLink to="/">
-            <Image src={logo} boxSize="60px" rounded={100} />
-          </RouterLink>
-        </Link>
-      <SearchInput onSearch={onSearch} />
-      <Button
-        asChild
-        bg={buttonBg} color={buttonText} _hover={{ opacity: 0.8 }}
-      >
-        <RouterLink to="/cart">
-          <Box display="flex" alignItems="center">
-            <BsCart/>
-            <Badge color={textColor} rounded={40}>{items.length}</Badge>
-          </Box>
+    <HStack
+      padding="3px"
+      color={textColor}
+      bg={bgColor}
+      justifyContent={"space-between"}
+    >
+      <Link asChild color={textColor}>
+        <RouterLink to="/">
+          <Image src={logo} boxSize="60px" rounded={100} />
         </RouterLink>
-      </Button>
-      <ColorModeButton borderColor={borderColor} rounded={20}/>
+      </Link>
+      <SearchInput onSearch={onSearch} />
+
+      <RouterLink to="/cart">
+        <Box
+          position="relative"  bg="transparent" _hover={{ opacity: 0.8 }}
+        >
+          <BsCart size="20"/>
+          <Float>
+            <Circle size="5" color={textColor}  bg={accentColor}>
+              {items.length}
+            </Circle>
+          </Float>
+        </Box>
+      </RouterLink>
+      <ColorModeButton borderColor={borderColor} rounded={20} />
     </HStack>
   );
 };
