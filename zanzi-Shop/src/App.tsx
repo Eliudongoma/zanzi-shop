@@ -3,6 +3,7 @@ import NavBar from "./components/NavBar";
 import { BrowserRouter as Routes } from "react-router-dom";
 import { useState } from "react";
 import { useCustomColor } from "./hooks/useCustomColor";
+import Dashboard from "./pages/Admin/Dashboard";
 
 export interface ProductQuery {
   search: string;
@@ -37,7 +38,7 @@ function App() {
           <Heading>Aside</Heading>
         </GridItem>
         <GridItem area="main" color={textColor} bg={mainBg} p={5}>
-          <Heading>Main</Heading>
+          <Dashboard/>
         </GridItem>
       </Grid>
     </Routes>
