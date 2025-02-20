@@ -1,34 +1,29 @@
-import {
-  Box,
-  Button,
-  Table,
-} from '@chakra-ui/react';
+import { Box, Button, Table } from "@chakra-ui/react";
 import {
   DialogBody,
   DialogContent,
   DialogHeader,
   DialogRoot,
 } from "../../../components/ui/dialog";
-import { Product } from '../../../types';
-import ProductForm from './ProductForm';
+import { Product } from "../../../types";
+import ProductForm from "./ProductForm";
 
 const ProductManagement = () => {
-  
- 
-
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     onOpen();
   };
 
-  
-
   return (
     <Box>
-      <Button colorScheme="teal" mb={4} onClick={() => {
-        setEditingProduct(null);
-        onOpen();
-      }}>
+      <Button
+        colorScheme="teal"
+        mb={4}
+        onClick={() => {
+          setEditingProduct(null);
+          onOpen();
+        }}
+      >
         Add New Product
       </Button>
 
@@ -61,16 +56,16 @@ const ProductManagement = () => {
       </Table.Root>
 
       <DialogRoot open={open} onOpenChange={onClose}>
-      <DialogContent>
-        <DialogHeader>
-          {editingProduct ? "Edit Product" : "Add New Product"}
-        </DialogHeader>
-        {/* <DialogTrigger /> */}
-        <DialogBody>
-          <ProductForm/>
-        </DialogBody>
-      </DialogContent>
-    </DialogRoot>
+        <DialogContent>
+          <DialogHeader>
+            {editingProduct ? "Edit Product" : "Add New Product"}
+          </DialogHeader>
+          {/* <DialogTrigger /> */}
+          <DialogBody>
+            <ProductForm />
+          </DialogBody>
+        </DialogContent>
+      </DialogRoot>
     </Box>
   );
 };
