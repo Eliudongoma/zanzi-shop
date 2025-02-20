@@ -1,4 +1,4 @@
-import { Box, Button, Table } from "@chakra-ui/react";
+import { Box, Button, Table, useDisclosure } from "@chakra-ui/react";
 import {
   DialogBody,
   DialogContent,
@@ -7,8 +7,12 @@ import {
 } from "../../../components/ui/dialog";
 import { Product } from "../../../types";
 import ProductForm from "./ProductForm";
+import { useState } from "react";
 
 const ProductManagement = () => {
+  const [products, setProducts] = useState<Product[]>([]);
+  const { open, onOpen, onClose } = useDisclosure();
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     onOpen();
@@ -62,7 +66,7 @@ const ProductManagement = () => {
           </DialogHeader>
           {/* <DialogTrigger /> */}
           <DialogBody>
-            <ProductForm />
+            <ProductForm setProducts={() => setProducts(products)} onClose={onClose} editingProduct={editingProduct} />
           </DialogBody>
         </DialogContent>
       </DialogRoot>

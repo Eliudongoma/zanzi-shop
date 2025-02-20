@@ -1,40 +1,48 @@
 import { Fieldset, Input, Textarea, Button } from "@chakra-ui/react";
 import { Product } from "../../../types";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect } from "react";
 import { productService } from "../../../services/api";
 import ProductSchema from "./ProductSchema";
 import { useForm } from "react-hook-form";
-import { useDisclosure } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field } from "../../../components/ui/field";
+import { v4 as uuidv4 } from "uuid";
 
+interface ProductFormProps {
+  setProducts: (products: Product[]) => void;
+  onClose: () => void;
+  editingProduct: Product | null;
+}
 
-const ProductForm = () => {
-  const [products, setProducts] = useState<Product[]>([]);
-  const { open, onOpen, onClose } = useDisclosure();
-  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-
-  const { handleSubmit, register, formState:{errors}, } = useForm<Product>({
+const ProductForm = ({
+  setProducts,
+  onClose,
+  editingProduct,
+}: ProductFormProps) => {
+  const {
+    handleSubmit,
+    register,
+    formState: { errors },
+  } = useForm<Product>({
     resolver: zodResolver(ProductSchema),
     defaultValues: {
+      _id: editingProduct?._id || "",
       name: editingProduct?.name || "",
       description: editingProduct?.description || "",
-      price: editingProduct?.price || 0,  
-      weight: editingProduct?.weight || "",
+      price: editingProduct?.price || 0,
+      weight: editingProduct?.weight || 0,
       category: editingProduct?.category || "",
       imageUrl: editingProduct?.imageUrl || "",
       stock: editingProduct?.stock || 0,
     },
-
   });
 
-  useEffect(() => {
-    fetchProducts();
-  }, []);
-
   const onSubmit = async (data: Product) => {
+    console.log(data);
+
     try {
-      await productService.create(data);
+      const newProduct = { ...data, _id: uuidv4() };
+      await productService.create(newProduct);
 
       await fetchProducts();
       onClose();
@@ -44,7 +52,7 @@ const ProductForm = () => {
 
     // Handle form submission
   };
-  const fetchProducts = async () => {
+  const fetchProducts = useCallback(async () => {
     try {
       const data = await productService.getAll();
       if (data) {
@@ -53,55 +61,70 @@ const ProductForm = () => {
     } catch (error) {
       console.log(error);
     }
-  };
+  }, [setProducts]);
+
+  useEffect(() => {
+    fetchProducts();
+  }, [fetchProducts]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)} noValidate>
       <Fieldset.Root>
         <Fieldset.Content>
           <Field label="Name">
             <Input {...register("name")} />
-            {errors.name && <span style={{color:"red"}}>{errors.name.message}</span>}
+            {errors.name && (
+              <span style={{ color: "red" }}>{errors.name.message}</span>
+            )}
           </Field>
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Description">
-            <Textarea
-              {...register("description")}
-            />
-            {errors.name && <span style={{color:"red"}}>{errors.name.message}</span>}
+            <Textarea {...register("description")} />
+            {errors.description && (
+              <span style={{ color: "red" }}>{errors.description.message}</span>
+            )}
           </Field>
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Price">
             <Input {...register("price")} type="number" />
-            {errors.name && <span style={{color:"red"}}>{errors.name.message}</span>}
+            {errors.price && (
+              <span style={{ color: "red" }}>{errors.price.message}</span>
+            )}
           </Field>
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Weight">
             <Input {...register("weight")} />
-            {errors.name && <span style={{color:"red"}}>{errors.name.message}</span>}
+            {errors.weight && (
+              <span style={{ color: "red" }}>{errors.weight.message}</span>
+            )}
           </Field>
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Category">
             <Input {...register("category")} />
-            {errors.name && <span style={{color:"red"}}>{errors.name.message}</span>}
+            {errors.category && (
+              <span style={{ color: "red" }}>{errors.category.message}</span>
+            )}
           </Field>
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Image URL">
             <Input {...register("imageUrl")} />
-            {errors.name && <span style={{color:"red"}}>{errors.name.message}</span>}
+            {errors.imageUrl && (
+              <span style={{ color: "red" }}>{errors.imageUrl.message}</span>
+            )}
           </Field>
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Stock">
             <Input {...register("stock")} type="number" />
-            {errors.name && <span style={{color:"red"}}>{errors.name.message}</span>}
+            {errors.stock && (
+              <span style={{ color: "red" }}>{errors.stock.message}</span>
+            )}
           </Field>
-
         </Fieldset.Content>
         <Button mt={4} colorScheme="teal" type="submit">
           Submit
