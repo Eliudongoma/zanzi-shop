@@ -6,19 +6,69 @@ const api = axios.create({
 });
 
 export const productService = {
-  getAll: () => api.get<Product[]>("/products").then((res) => res.data),
+  getAll: async () => {
+    try {
+      const response = await api.get<Product[]>("/products");
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching products", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error Response", error.response?.data || error.message);
+      }
+      throw error;
+    }
+  },
 
-  get: (id: string) =>
-    api.get<Product>(`/products/${id}`).then((res) => res.data),
+  get: async (id: string) => {
+    try {
+      const response = await api.get<Product>(`/products/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching product", error); 
+      if (axios.isAxiosError(error)) {
+        console.error("Error Response", error.response?.data || error.message);
+      }
+      throw error;
+    }
+  },
 
-  create: (product: Product) =>
-    api.post<Product>("/products", product).then((res) => res.data),
+  create: async (product: Product) => {
+    try { 
+      const response = await api.post<Product>("/products", product);
+      return response.data;
+    } catch (error) { 
+      console.error("Error creating product", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error Response", error.response?.data || error.message);
+      }
+      throw error;
+    }
+  },
 
-  update: (product: Product) =>
-    api
-      .put<Product>(`/products/${product._id}`, product)
-      .then((res) => res.data),
-      
-  delete: (id: string) =>
-    api.delete<Product>(`/products/${id}`).then((res) => res.data),
+   update: async (product: Product) => {
+    try {
+      const response = await api.put<Product>(`/products/${product._id}`, product);
+      return response.data;
+    } catch (error) {
+      console.error("Error updating product", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error Response", error.response?.data || error.message);
+      }
+      throw error;
+    }
+  },
+
+  delete: async (id: string) => {
+    try {
+      const response = await api.delete<Product>(`/products/${id}`);
+      return response.data;
+    } catch (error) {
+      console.error("Error deleting product", error);
+      if (axios.isAxiosError(error)) {
+        console.error("Error Response", error.response?.data || error.message);
+      }
+      throw error;
+    }
+  },  
+  
 };

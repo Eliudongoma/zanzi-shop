@@ -29,6 +29,7 @@ const ProductManagement = () => {
 
   const fetchProducts = async () => {
     const data = await productService.getAll();
+    
     if (!data) return;
     //
     setProducts(data);
@@ -41,6 +42,7 @@ const ProductManagement = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     // Handle form submission
     onClose();
     await fetchProducts();
@@ -52,7 +54,7 @@ const ProductManagement = () => {
         setEditingProduct(null);
         onOpen();
       }}>
-        Add New Product
+        Add New Order
       </Button>
 
       <Table.Root variant="line">
@@ -65,7 +67,7 @@ const ProductManagement = () => {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {products.map(product => (
+          {products.map((product) => (
             <Table.Row key={product._id}>
               <Table.Cell>{product.name}</Table.Cell>
               <Table.Cell>${product.price}</Table.Cell>
@@ -91,24 +93,26 @@ const ProductManagement = () => {
         {/* <DialogTrigger /> */}
         <DialogBody>
           <form onSubmit={handleSubmit}>
-            <Fieldset.Content>
-              <Field label="name">
-                <Input defaultValue={editingProduct?.name} name="name" />
-              </Field>
-            </Fieldset.Content>
-            <Fieldset.Content mt={4}>
-              <Field label="description">
-                <Textarea defaultValue={editingProduct?.description} name="description" />
-              </Field>
-            </Fieldset.Content>
-            <Fieldset.Content mt={4}>
-              <Field label="price">
-                <Input defaultValue={editingProduct?.price} type="number" />
-              </Field>
-            </Fieldset.Content>
-            <Button mt={4} colorScheme="teal" type="submit">
-              Submit
-            </Button>
+            <Fieldset.Root>
+              <Fieldset.Content>
+                <Field label="name">
+                  <Input defaultValue={editingProduct?.name} name="name" />
+                </Field>
+              </Fieldset.Content>
+              <Fieldset.Content mt={4}>
+                <Field label="description">
+                  <Textarea defaultValue={editingProduct?.description} name="description" />
+                </Field>
+              </Fieldset.Content>
+              <Fieldset.Content mt={4}>
+                <Field label="price">
+                  <Input defaultValue={editingProduct?.price} type="number" />
+                </Field>
+              </Fieldset.Content>
+              <Button mt={4} colorScheme="teal" type="submit">
+                Submit
+              </Button>
+            </Fieldset.Root>
           </form>
         </DialogBody>
       </DialogContent>

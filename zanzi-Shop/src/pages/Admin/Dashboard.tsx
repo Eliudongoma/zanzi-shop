@@ -5,7 +5,7 @@ import {
   Stat,
   Tabs,
 } from '@chakra-ui/react';
-import ProductManagement from './ProductManagement';
+import ProductManagement from './Product/ProductManagement';
 import OrderManagement from './OrderManagement';
 import UserManagement from './UserManagement';
 
@@ -22,7 +22,7 @@ const Dashboard:React.FC = () => {
         </Stat.Root>
         <Stat.Root>
           <Stat.Label>Total Revenue</Stat.Label>
-          <Stat.ValueText >$12,345</Stat.ValueText >
+          <Stat.ValueText >ksh12,345</Stat.ValueText >
           <Stat.HelpText>This month</Stat.HelpText>
         </Stat.Root>
         <Stat.Root>
