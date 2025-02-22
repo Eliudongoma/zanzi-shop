@@ -8,9 +8,10 @@ import {
 import { Product } from "../../../types";
 import ProductForm from "./ProductForm";
 import { useState } from "react";
+import useFetchProducts from "../../../hooks/useFetchProducts";
 
 const ProductManagement = () => {
-  const [products, setProducts] = useState<Product[]>([]);
+  const {products, fetchProducts} =  useFetchProducts();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const handleEdit = (product: Product) => {
@@ -73,7 +74,7 @@ const ProductManagement = () => {
             overflow:"auto",
             padding:"1rem"
           }}>
-            <ProductForm setProducts={() => setProducts(products)} onClose={onClose} editingProduct={editingProduct} />
+            <ProductForm  onSuccess={fetchProducts} onClose={onClose} editingProduct={editingProduct} />
           </DialogBody>
         </DialogContent>
       </DialogRoot>

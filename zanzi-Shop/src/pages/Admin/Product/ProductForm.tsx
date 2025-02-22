@@ -1,6 +1,5 @@
 import { Fieldset, Input, Textarea, Button } from "@chakra-ui/react";
 import { Product } from "../../../types";
-import { useCallback, useEffect } from "react";
 import { productService } from "../../../services/api";
 import ProductSchema from "./ProductSchema";
 import { useForm } from "react-hook-form";
@@ -9,13 +8,13 @@ import { Field } from "../../../components/ui/field";
 import { v4 as uuidv4 } from "uuid";
 
 interface ProductFormProps {
-  setProducts: (products: Product[]) => void;
   onClose: () => void;
+  onSuccess: () => void;
   editingProduct: Product | null;
 }
 
 const ProductForm = ({
-  setProducts,
+  onSuccess,
   onClose,
   editingProduct,
 }: ProductFormProps) => {
@@ -38,34 +37,19 @@ const ProductForm = ({
   });
 
   const onSubmit = async (data: Product) => {
-    console.log(data);
-
     try {
-      const newProduct = { ...data, _id: uuidv4() };
-      await productService.create(newProduct);
-
-      await fetchProducts();
+      if(editingProduct){
+        await productService.update(data)
+      }else{
+        const newProduct = { ...data, _id: uuidv4() };
+        await productService.create(newProduct);
+      }
+      onSuccess();
       onClose();
     } catch (error) {
       console.log(error);
     }
-
-    // Handle form submission
   };
-  const fetchProducts = useCallback(async () => {
-    try {
-      const data = await productService.getAll();
-      if (data) {
-        setProducts(data);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  }, [setProducts]);
-
-  useEffect(() => {
-    fetchProducts();
-  }, [fetchProducts]);
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>

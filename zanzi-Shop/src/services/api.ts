@@ -53,7 +53,7 @@ export const productService = {
   update: async (product: Product) => {
     try {
       const response = await api.put<Product>(
-        `/products/${product._id}`,
+        `/products${product._id}`,
         product
       );
       if (!response.data) throw new Error("Network Error");
