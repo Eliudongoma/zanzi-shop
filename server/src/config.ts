@@ -26,7 +26,7 @@ const getEnvVar = (key: keyof EnvConfig, defaultValue?: string): string => {
 };
 
 const config: EnvConfig = {
-  PORT: parseInt(getEnvVar("PORT", "5000"), 10),
+  PORT: parseInt(getEnvVar("PORT", "3000"), 10),
   MONGO_URI: getEnvVar("MONGO_URI"),
 };
 

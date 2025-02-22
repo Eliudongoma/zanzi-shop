@@ -6,8 +6,8 @@ import {
   Tabs,
 } from '@chakra-ui/react';
 import ProductManagement from './Product/ProductManagement';
-import OrderManagement from './OrderManagement';
-import UserManagement from './UserManagement';
+// import OrderManagement from './OrderManagement';
+// import UserManagement from './UserManagement';
 
 const Dashboard:React.FC = () => {
   return (
@@ -49,10 +49,10 @@ const Dashboard:React.FC = () => {
             <ProductManagement />
           </Tabs.Content>
           <Tabs.Content value='orders'>
-            <OrderManagement />
+            {/* <OrderManagement /> */}
           </Tabs.Content>
           <Tabs.Content value='users'>
-            <UserManagement />
+            {/* <UserManagement /> */}
           </Tabs.Content>
         </Tabs.List>
       </Tabs.Root>

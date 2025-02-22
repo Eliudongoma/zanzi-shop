@@ -60,12 +60,19 @@ const ProductManagement = () => {
       </Table.Root>
 
       <DialogRoot open={open} onOpenChange={onClose}>
-        <DialogContent>
+        <DialogContent style={{
+          maxHeight:"80vh",
+          overflow: "auto"
+        }}>
           <DialogHeader>
             {editingProduct ? "Edit Product" : "Add New Product"}
           </DialogHeader>
           {/* <DialogTrigger /> */}
-          <DialogBody>
+          <DialogBody style={{
+            maxHeight:"60vh",
+            overflow:"auto",
+            padding:"1rem"
+          }}>
             <ProductForm setProducts={() => setProducts(products)} onClose={onClose} editingProduct={editingProduct} />
           </DialogBody>
         </DialogContent>

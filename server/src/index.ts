@@ -9,12 +9,12 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/api/products", (req, res) => {
-  res.json([
-    { _id: 1, name: "Product 1", price: 10 },
-    { _id: 2, name: "Product 2", price: 20 },
-  ]);
-});
+// app.get("/api/products", (req, res) => {
+//   res.json([
+//     { _id: 1, name: "Product 1", price: 10 },
+//     { _id: 2, name: "Product 2", price: 20 },
+//   ]);
+// });
 const { PORT, MONGO_URI } = config;
 
 connectDB()
@@ -22,7 +22,7 @@ connectDB()
     res.send("Server is running!");
   });
 
-app.use("/products", productRoutes);
+app.use("/api", productRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
