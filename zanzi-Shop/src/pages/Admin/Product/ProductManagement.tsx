@@ -9,14 +9,23 @@ import { Product } from "../../../types";
 import ProductForm from "./ProductForm";
 import { useState } from "react";
 import useFetchProducts from "../../../hooks/useFetchProducts";
+import { productService } from "../../../services/api";
 
 const ProductManagement = () => {
-  const {products, fetchProducts} =  useFetchProducts();
+  const { products, fetchProducts } = useFetchProducts();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     onOpen();
+  };
+  const handleDelete = async (id: string) => {
+    try {
+      await productService.delete(id);
+      fetchProducts();
+    } catch (error) {
+      console.log("Error deleting Product", error);
+    }
   };
 
   return (
@@ -51,7 +60,11 @@ const ProductManagement = () => {
                 <Button size="sm" mr={2} onClick={() => handleEdit(product)}>
                   Edit
                 </Button>
-                <Button size="sm" colorScheme="red">
+                <Button
+                  size="sm"
+                  colorScheme="red"
+                  onClick={() => handleDelete(product._id)}
+                >
                   Delete
                 </Button>
               </Table.Cell>
@@ -61,20 +74,28 @@ const ProductManagement = () => {
       </Table.Root>
 
       <DialogRoot open={open} onOpenChange={onClose}>
-        <DialogContent style={{
-          maxHeight:"80vh",
-          overflow: "auto"
-        }}>
+        <DialogContent
+          style={{
+            maxHeight: "80vh",
+            overflow: "auto",
+          }}
+        >
           <DialogHeader>
             {editingProduct ? "Edit Product" : "Add New Product"}
           </DialogHeader>
           {/* <DialogTrigger /> */}
-          <DialogBody style={{
-            maxHeight:"60vh",
-            overflow:"auto",
-            padding:"1rem"
-          }}>
-            <ProductForm  onSuccess={fetchProducts} onClose={onClose} editingProduct={editingProduct} />
+          <DialogBody
+            style={{
+              maxHeight: "60vh",
+              overflow: "auto",
+              padding: "1rem",
+            }}
+          >
+            <ProductForm
+              onSuccess={fetchProducts}
+              onClose={onClose}
+              editingProduct={editingProduct}
+            />
           </DialogBody>
         </DialogContent>
       </DialogRoot>

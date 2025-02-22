@@ -70,7 +70,7 @@ export const productService = {
 
   delete: async (id: string) => {
     try {
-      const response = await api.delete<Product>(`/products/${id}`);
+      const response = await api.delete<Product>(`/products${id}`);
       if (!response.data) throw new Error("Network Error");
 
       return response.data;
