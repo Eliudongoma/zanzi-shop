@@ -3,6 +3,7 @@ import NavBar from "./components/NavBar";
 import { BrowserRouter as Routes } from "react-router-dom";
 import { useState } from "react";
 import { useCustomColor } from "./hooks/useCustomColor";
+// import ProductGrid from "./components/Product/ProductGrid";
 import Dashboard from "./pages/Admin/Dashboard";
 
 export interface ProductQuery {
@@ -39,6 +40,7 @@ function App() {
         </GridItem>
         <GridItem area="main" color={textColor} bg={mainBg} p={5}>
           <Dashboard/>
+          {/* <ProductGrid productQuery={productQuery}/> */}
         </GridItem>
       </Grid>
     </Routes>

@@ -54,7 +54,7 @@ const ProductManagement = () => {
           {products.map((product, index) => (
             <Table.Row key={product._id || index}>
               <Table.Cell>{product.name}</Table.Cell>
-              <Table.Cell>${product.price}</Table.Cell>
+              <Table.Cell>ksh {product.price}</Table.Cell>
               <Table.Cell>{product.stock}</Table.Cell>
               <Table.Cell>
                 <Button size="sm" mr={2} onClick={() => handleEdit(product)}>

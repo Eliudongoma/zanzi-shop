@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Field } from "../../../components/ui/field";
 import { v4 as uuidv4 } from "uuid";
+import ImagePicker from "../../../components/ImagePicker";
 
 interface ProductFormProps {
   onClose: () => void;
@@ -21,6 +22,7 @@ const ProductForm = ({
   const {
     handleSubmit,
     register,
+    setValue,
     formState: { errors },
   } = useForm<Product>({
     resolver: zodResolver(ProductSchema),
@@ -29,12 +31,15 @@ const ProductForm = ({
       name: editingProduct?.name || "",
       description: editingProduct?.description || "",
       price: editingProduct?.price || 0,
-      weight: editingProduct?.weight || 0,
+      weight: editingProduct?.weight || "",
       category: editingProduct?.category || "",
       imageUrl: editingProduct?.imageUrl || "",
       stock: editingProduct?.stock || 0,
     },
   });
+  const handleImageUpload = (imageUrl: string) => {
+    setValue("imageUrl", imageUrl);
+  }
 
   const onSubmit = async (data: Product) => {
     try {
@@ -96,11 +101,12 @@ const ProductForm = ({
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Image URL">
-            <Input {...register("imageUrl")} />
+            <ImagePicker onUpload={handleImageUpload}/>
             {errors.imageUrl && (
               <span style={{ color: "red" }}>{errors.imageUrl.message}</span>
             )}
           </Field>
+          <Input type="hidden" {...register("imageUrl")} />
         </Fieldset.Content>
         <Fieldset.Content mt={4}>
           <Field label="Stock">
