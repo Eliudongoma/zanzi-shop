@@ -4,13 +4,17 @@ import { Product } from "../types";
 
 const useFetchProducts = () => {
   const [products, setProducts] = useState<Product[]>([]);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const fetchProducts = useCallback(async () => {
+    setLoading(true);
     try {
       const data: Product[] = await productService.getAll();
       setProducts(data);
     } catch (error) {
       console.error("Error fetching products:", error);
+    } finally {
+      setLoading(false); // ✅ Stop loading
     }
   }, []);
 
@@ -18,7 +22,7 @@ const useFetchProducts = () => {
     fetchProducts();
   }, [fetchProducts]);
 
-  return { products, fetchProducts };
+  return { products, loading, fetchProducts };
 };
 
 export default useFetchProducts;

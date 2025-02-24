@@ -3,6 +3,7 @@ import { useCart } from "../../hooks/useCart";
 import { Product } from "../../types";
 import { toaster } from "../ui/toasterComp";
 import getCroppedImage from "../../services/imageUrls";
+import { useCustomColor } from "../../hooks/useCustomColor";
 
 interface ProductCardProps {
   product: Product;
@@ -10,6 +11,7 @@ interface ProductCardProps {
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { addToCart } = useCart();
+  const { buttonBg, textColor } = useCustomColor();
 
   const handleAddToCart = () => {
     addToCart(product);
@@ -24,14 +26,25 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
     <Card.Root>
       <Image src={getCroppedImage(product.imageUrl)} />
       <Card.Body gap="2">
-        <Card.Title>{product.name}</Card.Title>
+        <Card.Title color={textColor}>{product.name}</Card.Title>
         <Card.Description>{product.description}</Card.Description>
-        <Text textStyle="2xl" fontWeight="medium" letterSpacing="tight" mt="2">
-          {product.price}ksh
+        <Text
+          textStyle="2xl"
+          fontWeight="medium"
+          letterSpacing="tight"
+          mt="2"
+          color={textColor}
+        >
+          ksh {product.price}
         </Text>
       </Card.Body>
       <Card.Footer gap="2">
-        <Button variant="ghost" onClick={handleAddToCart}>
+        <Button
+          variant="outline"
+          onClick={handleAddToCart}
+          borderRadius={4}
+          color={buttonBg}
+        >
           Add to cart
         </Button>
       </Card.Footer>

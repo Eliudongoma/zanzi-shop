@@ -9,7 +9,7 @@ const getCroppedImage = (url: string) => {
   // const index = url.indexOf(target)  + target.length;
   const newUrl =
     url.slice(0, index + target.length) +
-    "crop/600/400/" +
+    "crop/600/500/" +
     url.slice(index + target.length);
 
   return newUrl;
