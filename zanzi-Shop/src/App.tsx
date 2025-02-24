@@ -3,8 +3,9 @@ import NavBar from "./components/NavBar";
 import { BrowserRouter as Routes } from "react-router-dom";
 import { useState } from "react";
 import { useCustomColor } from "./hooks/useCustomColor";
-// import ProductGrid from "./components/Product/ProductGrid";
-import Dashboard from "./pages/Admin/Dashboard";
+import ProductGrid from "./components/Product/ProductGrid";
+// import Dashboard from "./pages/Admin/Dashboard";
+import { Toaster } from "react-hot-toast";
 
 export interface ProductQuery {
   search: string;
@@ -17,6 +18,7 @@ function App() {
   const { textColor, asideBg, mainBg}= useCustomColor();
   return (
     <Routes>
+      <Toaster position="top-right" reverseOrder={false} />
       <Grid
         templateAreas={{ base: `"nav" "main"`, lg: `"nav nav" "aside main"` }}
         templateColumns={{
@@ -39,8 +41,8 @@ function App() {
           <Heading>Aside</Heading>
         </GridItem>
         <GridItem area="main" color={textColor} bg={mainBg} p={5}>
-          <Dashboard/>
-          {/* <ProductGrid productQuery={productQuery}/> */}
+          {/* <Dashboard/> */}
+          <ProductGrid productQuery={productQuery}/>
         </GridItem>
       </Grid>
     </Routes>

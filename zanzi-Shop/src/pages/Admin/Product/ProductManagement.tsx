@@ -1,6 +1,7 @@
 import { Box, Button, Table, useDisclosure } from "@chakra-ui/react";
 import {
   DialogBody,
+  DialogCloseTrigger,
   DialogContent,
   DialogHeader,
   DialogRoot,
@@ -83,7 +84,7 @@ const ProductManagement = () => {
           <DialogHeader>
             {editingProduct ? "Edit Product" : "Add New Product"}
           </DialogHeader>
-          {/* <DialogTrigger /> */}
+          <DialogCloseTrigger />
           <DialogBody
             style={{
               maxHeight: "60vh",

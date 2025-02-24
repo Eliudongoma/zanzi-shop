@@ -7,6 +7,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Field } from "../../../components/ui/field";
 import { v4 as uuidv4 } from "uuid";
 import ImagePicker from "../../../components/ImagePicker";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 interface ProductFormProps {
   onClose: () => void;
@@ -44,15 +46,21 @@ const ProductForm = ({
   const onSubmit = async (data: Product) => {
     try {
       if(editingProduct){
-        await productService.update(data)
+        const response = await productService.update(data);
+        toast.success(response.message)
       }else{
         const newProduct = { ...data, _id: uuidv4() };
-        await productService.create(newProduct);
+        const response = await productService.create(newProduct);
+        toast.success(response.message)
       }
       onSuccess();
       onClose();
     } catch (error) {
-      console.log(error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "An error occurred");
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
 

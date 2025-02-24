@@ -1,6 +1,11 @@
 import axios from "axios";
 import { Product } from "../types";
 
+type messageProduct ={
+  message: string;
+  product:Product;
+}
+
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
 });
@@ -22,7 +27,7 @@ export const productService = {
 
   get: async (id: string) => {
     try {
-      const response = await api.get<Product>(`/products/${id}`);
+      const response = await api.get<messageProduct>(`/products${id}`);
       if (!response.data) throw new Error("Network Error");
 
       return response.data;
@@ -37,7 +42,7 @@ export const productService = {
 
   create: async (product: Product) => {
     try {
-      const response = await api.post<Product>("/products", product);
+      const response = await api.post<messageProduct>("/products", product);
       if (!response.data) throw new Error("Network Error");
 
       return response.data;
@@ -52,7 +57,7 @@ export const productService = {
 
   update: async (product: Product) => {
     try {
-      const response = await api.put<Product>(
+      const response = await api.put<messageProduct>(
         `/products${product._id}`,
         product
       );
@@ -70,7 +75,7 @@ export const productService = {
 
   delete: async (id: string) => {
     try {
-      const response = await api.delete<Product>(`/products${id}`);
+      const response = await api.delete<messageProduct>(`/products${id}`);
       if (!response.data) throw new Error("Network Error");
 
       return response.data;
