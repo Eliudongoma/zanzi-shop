@@ -1,62 +1,51 @@
-import { Grid, GridItem, Heading } from "@chakra-ui/react";
-import NavBar from "./components/NavBar";
-import { BrowserRouter as Router } from "react-router-dom";
-import { useState } from "react";
-import { useCustomColor } from "./hooks/useCustomColor";
-import ProductGrid from "./components/Product/ProductGrid";
-import Dashboard from "./pages/Admin/Dashboard";
-import { useAuthState } from "react-firebase-hooks/auth";
+import {
+  Navigate,
+  Route,
+  BrowserRouter as Router,
+  Routes,
+} from "react-router-dom";
 import { Toaster } from "react-hot-toast";
-import { auth } from "./config/firebaseConfig";
-import Login from "./components/Login";
-import Register from "./components/Register";
 import useUserRole from "./hooks/useUserRole";
-
-
-export interface ProductQuery {
-  search: string;
-}
+import Layout from "./components/Layout";
+import Login from "./components/Login";
+import ProductGrid from "./components/Product/ProductGrid";
+import Register from "./components/Register";
+import Dashboard from "./pages/Admin/Dashboard";
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
+  const { user } = useUserRole();
 
-  const {user, role} = useUserRole();
-  const [productQuery, setProductQuery] = useState<ProductQuery>(
-    {} as ProductQuery
-  );
-  const { textColor, asideBg, mainBg}= useCustomColor();
-  if(user === undefined || role === null){
-    return <p>Loading...</p>;
-  }
   return (
     <Router>
+      <Toaster position="top-right" reverseOrder={false} />
       <Routes>
-        <Toaster position="top-right" reverseOrder={false} />
-        <Grid
-          templateAreas={{ base: `"nav" "main"`, lg: `"nav nav" "aside main"` }}
-          templateColumns={{
-            base: "1fr",
-            lg: "200px 1fr",
-          }}
-        >
-          <GridItem area="nav" color={textColor} p={5} >
-            <NavBar
-              onSearch={(search) => setProductQuery({ ...productQuery, search })}
-            />
-          </GridItem>
-          <GridItem
-            area="aside"
-            px={5}
-            color={textColor}
-            bg={asideBg}
-            display={{ base: "none", lg: "block" }}
-          >
-            <Heading>Aside</Heading>
-          </GridItem>
-          <GridItem area="main" color={textColor} bg={mainBg} p={5}>
-            {/* <Dashboard/> */}
-            <ProductGrid productQuery={productQuery}/>
-          </GridItem>
-        </Grid>
+        {/* Public Routes */}
+        <Route path="/" element={<Layout />}>
+          <Route index element={<ProductGrid />} />
+          <Route path="products" element={<ProductGrid />} />
+        </Route>
+        <Route
+          path="/login"
+          element={!user ? <Login /> : <Navigate to="/products" />}
+        />
+        <Route
+          path="/register"
+          element={!user ? <Register /> : <Navigate to="/products" />}
+        />
+
+        {/* Protected User Route */}
+        {/* <Route element={<ProtectedRoute />}>
+    <Route path="/dashboard" element={<Dashboard />} />
+  </Route> */}
+
+        {/* Protected Admin Route */}
+        <Route element={<ProtectedRoute requiredRole="admin" />}>
+          <Route path="/admin" element={<Dashboard />} />
+        </Route>
+
+        {/* Redirect unknown routes */}
+        <Route path="*" element={<Navigate to="/" />} />
       </Routes>
     </Router>
   );
