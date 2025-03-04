@@ -1,39 +1,30 @@
-import { Request, Response, NextFunction } from "express";
-import jwt from "jsonwebtoken";
-
-const JWT_SECRET = process.env.JWT_SECRET || "secret-key";
-
-export interface AuthRequest extends Request {
-  user?: {
-    id: string;
-    role: string;
-  };
+import { NextFunction, Request, Response } from "express";
+import { DecodedIdToken } from "firebase-admin/auth";
+import {auth} from "../config/firebase.js";
+declare global {
+  namespace Express {
+    interface Request {
+      userId?: DecodedIdToken;
+    }
+  }
 }
-export const auth = async (
-  req: AuthRequest,
+
+export const verifyToken = async (
+  req: Request,
   res: Response,
   next: NextFunction
 ) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  if (!token) {
+    res.status(401).json({ message: "Unauthorised: no token provided" });
+    return;
+  }
   try {
-    const token = req.header("Authorization")?.replace("Bearer", "");
-    if (!token) {
-      throw new Error();
-    }
-
-    const decoded = jwt.verify(token, JWT_SECRET) as {
-      id: string;
-      role: string;
-    };
-    req.user = decoded;
+    const decodedToken = await auth.verifyIdToken(token);
+    req.body.userId = decodedToken.uid;
     next();
   } catch (error) {
-    res.status(401).json({ message: "Please authenticate" });
+    res.status(401).json({ message: "Unauthorzed: invalid token" });
+    return;
   }
 };
-export const isAdmin = (req:AuthRequest,res:Response,next:NextFunction) =>       {
-  if(req.user?.role !== 'admin'){
-    return  res.status(403).json({ message: "Admin access required" });
-  }
-  next();
-};
-

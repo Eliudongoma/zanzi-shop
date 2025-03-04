@@ -1,46 +1,25 @@
 import { Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
+import { auth } from "../config/firebase.js";
 
 const JWT_Secret = process.env.JWT_SECRET || "secret-key";
 
 export const register = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { name, email, password } = req.body;
-    const userExists = await User.findOne({
-      email,
-    });
-    if (userExists) {
-      res.status(400).json({ message: "Email already registered" });
-      return;
-    }
-    const user = await User.create({
-      name,
+    const { email, password, displayName } = req.body;
+    const user = await auth.createUser({
       email,
       password,
+      displayName,
     });
-    await user.save();
 
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_Secret);
-    res.status(201).json({ user, token });
+    res.status(201).json({ message: "User Registered", user });
   } catch (error) {
-    res.status(500).json({ message: "Registration failed" });
+    res.status(500).json({ message: (error as Error).message });
   }
 };
 
 export const login = async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { email, password } = req.body;
-    const user = await User.findOne({
-      email,
-    });
-    if (!user || (await user.comparePassword(password))) {
-      res.status(401).json({ message: "Invalid credentials" });
-      return;
-    }
-    const token = jwt.sign({ id: user._id, role: user.role }, JWT_Secret);
-    res.status(200).json({ user, token });
-  } catch (error) {
-    res.status(500).json({ message: "Login failed" });
-  }
+  res.status(200).json({ message: "Firebase  handles login" });
 };
