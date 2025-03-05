@@ -15,6 +15,8 @@ import { ColorModeButton } from "./ui/color-mode";
 import { useCustomColor } from "../hooks/useCustomColor";
 import { BsPerson, BsPersonAdd } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
+import { logoutUser } from "../hooks/useAuth";
+import { toast } from "react-hot-toast";
 
 const UserProfile = () => {
   const [open, setOpen] = useState(false);
@@ -22,9 +24,24 @@ const UserProfile = () => {
   const navigate = useNavigate();
 
   const handleSignUp = () => {
-    navigate("/register")
-    
-  } 
+    navigate("/register");
+  };
+  const handleSignIn = () => {
+    navigate("/login");
+  };
+  const handleSignOut = async () => {
+    try {
+      await logoutUser();
+      toast.success("LogOut successful!");
+      navigate("/");
+      setOpen(false)
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message);
+      }
+    }
+  };
+
   return (
     <>
       <DrawerRoot open={open} onOpenChange={(e) => setOpen(e.open)}>
@@ -35,15 +52,17 @@ const UserProfile = () => {
         <DrawerContent offset={"5"}>
           <DrawerHeader>
             <HStack>
-              <Avatar color={textColor}/>
-              <DrawerTitle pl={5} color={textColor}>User Profile</DrawerTitle>
-              <ColorModeButton variant={"ghost"} ml={8}/>
+              <Avatar color={textColor} />
+              <DrawerTitle pl={5} color={textColor}>
+                User Profile
+              </DrawerTitle>
+              <ColorModeButton variant={"ghost"} ml={8} />
             </HStack>
           </DrawerHeader>
           <DrawerBody>
             <VStack gap={4} align="start">
               <HStack>
-                <BsPersonAdd size={"30px"} color={textColor}/>
+                <BsPersonAdd size={"30px"} color={textColor} />
                 <Button
                   color={textColor}
                   variant="ghost"
@@ -54,11 +73,11 @@ const UserProfile = () => {
                 </Button>
               </HStack>
               <HStack>
-                <BsPerson size={"30px"} color={textColor}/>
+                <BsPerson size={"30px"} color={textColor} />
                 <Button
                   color={textColor}
                   variant="ghost"
-                  // onClick={handleSignIn}
+                  onClick={handleSignIn}
                   width="80%"
                 >
                   Sign In
@@ -66,11 +85,11 @@ const UserProfile = () => {
               </HStack>
 
               <HStack>
-                <BsPerson size={"30px"} color={textColor}/>
+                <BsPerson size={"30px"} color={textColor} />
                 <Button
                   color={textColor}
                   variant="ghost"
-                  // onClick={handleSignOut}
+                  onClick={handleSignOut}
                   width="80%"
                 >
                   Sign Out

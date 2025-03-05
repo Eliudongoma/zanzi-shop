@@ -1,36 +1,65 @@
 import { useState } from "react";
-import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../config/firebaseConfig";
-import { toast } from "react-toastify";
+import { toast } from "react-hot-toast";
+import { loginUser } from "../hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { Flex, Box, VStack, Input, Button, Spinner } from "@chakra-ui/react";
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [isLoading, setLoading] = useState(false);
+  const navigate  = useNavigate();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    try {
-      await signInWithEmailAndPassword(auth, email, password);
-      toast.success("Logged in successfully!");
-    } catch (error: unknown) {
-      if (error instanceof Error) toast.error(error.message || "Login failed");
-    }
+        setLoading(true)
+        try {
+          await loginUser(email, password);
+          toast.success('Login successful!');
+          navigate('/'); // Redirect to home or dashboard
+        } catch (error) {
+          if (error instanceof Error) {
+            toast.error(error.message);
+          }
+        } finally {
+          setLoading(false);
+        }    
   };
 
   return (
-    <form onSubmit={handleLogin}>
-      <input
-        type="email"
-        placeholder="Email"
-        onChange={(e) => setEmail(e.target.value)}
-      />
-      <input
-        type="password"
-        placeholder="Password"
-        onChange={(e) => setPassword(e.target.value)}
-      />
-      <button type="submit">Login</button>
-    </form>
+    <Flex height="100vh" align="center" justify="center">
+          <Box
+            bg="gray.100"
+            p={8}
+            rounded="lg"
+            boxShadow="lg"
+            width={{ base: "90%", md: "400px" }}
+          >
+            <form onSubmit={handleLogin}>
+              <VStack gap={4}>
+                <Input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  bg="white"
+                  required
+                />
+                <Input
+                  type="password"
+                  placeholder="Password"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  bg="white"
+                  required
+                />
+                <Button type="submit" colorScheme="blue" width="full" disabled={isLoading}>
+                  {isLoading ? <Spinner/> : "Login"}
+                </Button>
+              </VStack>
+            </form>
+          </Box>
+        </Flex>
   );
 };
 
