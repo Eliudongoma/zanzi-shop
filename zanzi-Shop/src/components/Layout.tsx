@@ -1,6 +1,5 @@
 import { Grid, GridItem, Heading } from '@chakra-ui/react'
 import NavBar from './NavBar'
-import ProductGrid from './Product/ProductGrid'
 import { useState } from 'react';
 import { useCustomColor } from '../hooks/useCustomColor';
 import { Outlet } from 'react-router-dom';
@@ -37,9 +36,7 @@ const Layout = () => {
             <Heading>Aside</Heading>
           </GridItem>
           <GridItem area="main" color={textColor} bg={mainBg} p={5}>
-            {/* <Dashboard/> */}
             <Outlet/>
-            <ProductGrid />
           </GridItem>
         </Grid>
   )
