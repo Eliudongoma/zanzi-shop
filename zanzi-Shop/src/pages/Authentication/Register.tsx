@@ -1,26 +1,29 @@
 import { useState } from "react";
+import axios from "axios";
 import { toast } from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../hooks/useAuth";
 import { Flex, Box, VStack, Input, Button, Spinner, Fieldset } from "@chakra-ui/react";
-import { User } from "../../types";
 import { Field } from "../../components/ui/field";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import RegisterSchema from "./RegisterSchema";
+import { z } from "zod";
+import { userService } from "../../services/apiServices";
+import { useCustomColor } from "../../hooks/useCustomColor";
+
+type RegisterFormValues  = z.infer<typeof RegisterSchema>
 
 const Register = () => {
-  // const [email, setEmail] = useState("");
-  // const [password, setPassword] = useState("");
   const [isLoading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const {textColor, bgColor, buttonBg, buttonText} = useCustomColor();
 
   const {
     handleSubmit,
     register,
-    setValue,
     formState: { errors },
-  } = useForm<User>({
+  } = useForm<RegisterFormValues>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
       firebaseUid: "",
@@ -34,34 +37,44 @@ const Register = () => {
     },
   });
 
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async  (data:RegisterFormValues) => {
     setLoading(true);
     try {
-      await registerUser(email, password);
-      toast.success("Registration successful!");
+      const firebaseUser = await registerUser(data.email, data.password);
+      const userData = {
+        ...data,
+        firebaseUid: firebaseUser.uid, 
+      }
+      const response = await userService.create(userData)
+      toast.success(response.message);
       navigate("/"); // Redirect to home or dashboard
     } catch (error) {
       if (error instanceof Error) {
         toast.error(error.message);
+      }else if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "An error occurred");
+      } else {
+        toast.error("An unexpected error occurred");
       }
+      
     } finally {
       setLoading(false);
     }
-  };
+  }
 
   return (
     <Flex height="100vh" align="center" justify="center">
       <Box
-        bg="gray.100"
+        bg={bgColor}
         p={8}
         rounded="lg"
         boxShadow="lg"
         width={{ base: "90%", md: "400px" }}
       >
-        <form onSubmit={handleRegister}>
+        <form onSubmit={handleSubmit(onSubmit)}>
           <VStack gap={4}>
-            <Fieldset.Root>
+            <Fieldset.Root color={textColor}>
+              <Fieldset.Legend fontSize={40} mb={2} color={textColor}>Signup</Fieldset.Legend>
               <Fieldset.Content>
                 <Field label="FirstName">
                   <Input {...register("firstName")} />
@@ -89,6 +102,16 @@ const Register = () => {
                 </Field>
               </Fieldset.Content>
               <Fieldset.Content mt={4}>
+                <Field label="Password">
+                  <Input {...register("password")} type="password"/>
+                  {errors.password && (
+                    <span style={{ color: "red" }}>
+                      {errors.password.message}
+                    </span>
+                  )}
+                </Field>
+              </Fieldset.Content>
+              <Fieldset.Content mt={4}>
                 <Field label="Phone Number">
                   <Input {...register("phoneNumber")} />
                   {errors.phoneNumber && (
@@ -98,21 +121,12 @@ const Register = () => {
                   )}
                 </Field>
               </Fieldset.Content>
-              <Fieldset.Content mt={4}>
-                <Field label="Category">
-                  <Input {...register("password")} type="password"/>
-                  {errors.password && (
-                    <span style={{ color: "red" }}>
-                      {errors.password.message}
-                    </span>
-                  )}
-                </Field>
-              </Fieldset.Content>
               
             </Fieldset.Root>
             <Button
               type="submit"
-              colorScheme="blue"
+              color={buttonText}
+              bg={buttonBg}
               width="full"
               disabled={isLoading}
             >

@@ -1,5 +1,10 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
+interface ResponseType<T> {
+  message: string;
+  data: T;
+}
+
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
 });
@@ -30,9 +35,9 @@ export class ApiService<T> {
     }
   }
   //Create
-  async create(data: T, config?: AxiosRequestConfig): Promise<T> {
+  async create(data: T, config?: AxiosRequestConfig): Promise<ResponseType<T>> {
     try {
-      const response: AxiosResponse<T> = await api.post(
+      const response: AxiosResponse<ResponseType<T>> = await api.post(
         this.endpoint,
         data,
         config
@@ -48,9 +53,9 @@ export class ApiService<T> {
     id: string,
     data: Partial<T>,
     config?: AxiosRequestConfig
-  ): Promise<T> {
+  ): Promise<ResponseType<T>> {
     try {
-      const response: AxiosResponse<T> = await api.put(
+      const response: AxiosResponse<ResponseType<T>> = await api.put(
         `${this.endpoint}/${id}`,
         data,
         config

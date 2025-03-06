@@ -10,7 +10,7 @@ import { Product } from "../../../types";
 import ProductForm from "./ProductForm";
 import { useState } from "react";
 import useFetchProducts from "../../../hooks/useFetchProducts";
-import { productService } from "../../../services/api";
+import { productService } from "../../../services/apiServices";
 
 const ProductManagement = () => {
   const { products, fetchProducts } = useFetchProducts();

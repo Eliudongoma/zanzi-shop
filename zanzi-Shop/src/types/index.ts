@@ -18,7 +18,7 @@ export interface User {
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
+  password?: string;
   phoneNumber?: string;
   registeredAt: Date
   role: 'user' | 'admin';

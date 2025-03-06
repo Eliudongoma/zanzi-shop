@@ -1,6 +1,6 @@
 import { Fieldset, Input, Textarea, Button } from "@chakra-ui/react";
 import { Product } from "../../../types";
-import { productService } from "../../../services/api";
+import { productService } from "../../../services/apiServices";
 import ProductSchema from "./ProductSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -46,7 +46,7 @@ const ProductForm = ({
   const onSubmit = async (data: Product) => {
     try {
       if(editingProduct){
-        const response = await productService.update(data);
+        const response = await productService.update(data._id,data);
         toast.success(response.message)
       }else{
         const newProduct = { ...data, _id: uuidv4() };
