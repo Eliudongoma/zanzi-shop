@@ -7,9 +7,9 @@ import {
 import { Toaster } from "react-hot-toast";
 import useUserRole from "./hooks/useUserRole";
 import Layout from "./components/Layout";
-import Login from "./components/Login";
+import Login from "./pages/Authentication/Login";
 import ProductGrid from "./components/Product/ProductGrid";
-import Register from "./components/Register";
+import Register from "./pages/Authentication/Register";
 import Dashboard from "./pages/Admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 

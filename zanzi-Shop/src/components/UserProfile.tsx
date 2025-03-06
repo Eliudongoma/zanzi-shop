@@ -4,19 +4,20 @@ import {
   DrawerCloseTrigger,
   DrawerContent,
   DrawerHeader,
+  DrawerRoot,
   DrawerTitle,
   DrawerTrigger,
 } from "./ui/drawer";
 import { Avatar } from "./ui/avatar";
-import { DrawerRoot } from "./ui/drawer";
 import { useState } from "react";
 import { Button, HStack, VStack } from "@chakra-ui/react";
 import { ColorModeButton } from "./ui/color-mode";
 import { useCustomColor } from "../hooks/useCustomColor";
-import { BsPerson, BsPersonAdd } from "react-icons/bs";
+import { BsPersonAdd } from "react-icons/bs";
 import { useNavigate } from "react-router-dom";
 import { logoutUser } from "../hooks/useAuth";
 import { toast } from "react-hot-toast";
+import { LuLogIn, LuLogOut } from "react-icons/lu";
 
 const UserProfile = () => {
   const [open, setOpen] = useState(false);
@@ -73,7 +74,7 @@ const UserProfile = () => {
                 </Button>
               </HStack>
               <HStack>
-                <BsPerson size={"30px"} color={textColor} />
+                <LuLogIn size={"30px"} color={textColor} />
                 <Button
                   color={textColor}
                   variant="ghost"
@@ -85,7 +86,7 @@ const UserProfile = () => {
               </HStack>
 
               <HStack>
-                <BsPerson size={"30px"} color={textColor} />
+                <LuLogOut size={"30px"} color={textColor} />
                 <Button
                   color={textColor}
                   variant="ghost"

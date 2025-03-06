@@ -1,90 +1,81 @@
-import axios from "axios";
-import { Product } from "../types";
-
-type messageProduct ={
-  message: string;
-  product:Product;
-}
+import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 
 const api = axios.create({
   baseURL: "http://localhost:3000/api",
 });
 
-export const productService = {
-  getAll: async () => {
+export class ApiService<T> {
+  constructor(private endpoint: string) {}
+  //Get ALL
+  async getAll(config?: AxiosRequestConfig): Promise<T[]> {
     try {
-      const response = await api.get<Product[]>("/products");
-      if (!response.data) throw new Error("Network Error");
+      const response: AxiosResponse<T[]> = await api.get(this.endpoint, config);
       return response.data;
     } catch (error) {
-      console.error("Error fetching products", error);
-      if (axios.isAxiosError(error)) {
-        console.error("Error Response", error.response?.data || error.message);
-      }
+      this.handleError(error);
       throw error;
     }
-  },
-
-  get: async (id: string) => {
+  }
+  //Get By
+  async getById(id: string, config?: AxiosRequestConfig): Promise<T> {
     try {
-      const response = await api.get<messageProduct>(`/products${id}`);
-      if (!response.data) throw new Error("Network Error");
-
-      return response.data;
-    } catch (error) {
-      console.error("Error fetching product", error);
-      if (axios.isAxiosError(error)) {
-        console.error("Error Response", error.response?.data || error.message);
-      }
-      throw error;
-    }
-  },
-
-  create: async (product: Product) => {
-    try {
-      const response = await api.post<messageProduct>("/products", product);
-      if (!response.data) throw new Error("Network Error");
-
-      return response.data;
-    } catch (error) {
-      console.error("Error creating product", error);
-      if (axios.isAxiosError(error)) {
-        console.error("Error Response", error.response?.data || error.message);
-      }
-      throw error;
-    }
-  },
-
-  update: async (product: Product) => {
-    try {
-      const response = await api.put<messageProduct>(
-        `/products${product._id}`,
-        product
+      const response: AxiosResponse<T> = await api.get(
+        `${this.endpoint}/${id}`,
+        config
       );
-      if (!response.data) throw new Error("Network Error");
-
       return response.data;
     } catch (error) {
-      console.error("Error updating product", error);
-      if (axios.isAxiosError(error)) {
-        console.error("Error Response", error.response?.data || error.message);
-      }
+      this.handleError(error);
       throw error;
     }
-  },
-
-  delete: async (id: string) => {
+  }
+  //Create
+  async create(data: T, config?: AxiosRequestConfig): Promise<T> {
     try {
-      const response = await api.delete<messageProduct>(`/products${id}`);
-      if (!response.data) throw new Error("Network Error");
-
+      const response: AxiosResponse<T> = await api.post(
+        this.endpoint,
+        data,
+        config
+      );
       return response.data;
     } catch (error) {
-      console.error("Error deleting product", error);
-      if (axios.isAxiosError(error)) {
-        console.error("Error Response", error.response?.data || error.message);
-      }
+      this.handleError(error);
       throw error;
     }
-  },
-};
+  }
+  //Update
+  async update(
+    id: string,
+    data: Partial<T>,
+    config?: AxiosRequestConfig
+  ): Promise<T> {
+    try {
+      const response: AxiosResponse<T> = await api.put(
+        `${this.endpoint}/${id}`,
+        data,
+        config
+      );
+      return response.data;
+    } catch (error) {
+      this.handleError(error);
+      throw error;
+    }
+  }
+  //Delete
+  async delete(id: string, config?: AxiosRequestConfig): Promise<void> {
+    try {
+      await api.delete(`${this.endpoint}/${id}`, config);
+    } catch (error) {
+      this.handleError(error);
+      throw error;
+    }
+  }
+
+  private handleError(error: unknown): void {
+    if (axios.isAxiosError(error)) {
+      console.error("Axios error:", error.response?.data || error.message);
+    } else {
+      console.error("Unexpected error", error);
+    }
+  }
+}

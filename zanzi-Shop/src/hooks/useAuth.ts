@@ -47,7 +47,7 @@ export const loginUser = async (email: string, password: string) => {
         case 'auth/invalid-email':
           throw new Error('Invalid email address');
         default:
-          throw new Error('Login failed');
+          throw new Error('Login failed Please try again');
       }
     }
     throw error;
