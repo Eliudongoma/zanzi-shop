@@ -1,5 +1,5 @@
 import { Request, Response } from "express";
-import admin, { auth } from "../config/firebase.js";
+import admin from "../config/firebase.js";
 import User from "../models/User.js";
 
 interface AuthenticatedRequest extends Request {
@@ -11,20 +11,21 @@ export const register = async (
   res: Response
 ): Promise<void> => {
   try {
-    const {firebaseUid, email, password, displayName, phoneNumber, role, firstName, lastName } = req.body;
-    // const firebaseUser = await auth.createUser({
-    //   email,
-    //   password,
-    //   displayName,
-    // });
-
+    const {
+      firebaseUid,
+      email,
+      phoneNumber,
+      role,
+      firstName,
+      lastName,
+    } = req.body;
     const newUser = new User({
       firebaseUID: firebaseUid,
       email,
       firstName,
       lastName,
       phoneNumber,
-      role
+      role,
     });
     await newUser.save();
     res.status(201).json({ message: "User Registered", newUser });

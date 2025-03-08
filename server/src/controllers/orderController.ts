@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import Order from "../models/Order.js";
-import { AuthRequest } from "../middleware/auth.js";
+import { AuthenticatedRequest } from "../types/express.js";
 
-export const createOrder = async (req: AuthRequest, res: Response) => {
+export const createOrder = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const order = new Order({
       ...req.body,
@@ -15,7 +15,7 @@ export const createOrder = async (req: AuthRequest, res: Response) => {
   }
 };
 
-export const getOrders = async (req: AuthRequest, res: Response) => {
+export const getOrders = async (req: AuthenticatedRequest, res: Response) => {
   try {
     const orders =
       req.user?.role === "admin"

@@ -1,25 +1,30 @@
 import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../config/firebaseConfig";
-import { doc, getDoc } from "firebase/firestore";
+import { doc, onSnapshot } from "firebase/firestore";
 
 const useUserRole = () => {
   const [user] = useAuthState(auth);
   const [role, setRole] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchRole = async () => {
-      if (user) {
-        // console.log(user) 
-        const userDoc = await getDoc(doc(db, "users", user.uid));
-        // console.log(userDoc.data()?.role)
+    let unsubscribe: () => void;
 
-        if (userDoc.exists()) {
-          setRole(userDoc.data().role);
-        }
+      if (user) {
+        const userDocRef = doc(db, "users", user.uid);
+
+        unsubscribe = onSnapshot(userDocRef, (userDoc) => {
+          if (userDoc.exists()) {
+            setRole(userDoc.data().role);
+          }else{
+            setRole(null)
+          }
+        })
+        
       }
-    };
-    fetchRole();
+      return () => {
+        if(unsubscribe) unsubscribe();
+      }
   }, [user]);
   return { user, role};
 };

@@ -14,35 +14,38 @@ import Dashboard from "./pages/Admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
-  const { user } = useUserRole();
+  const { user, role } = useUserRole();
+  // console.log(role === "admin")
+
+  // if (user === null) return <div>Loading...</div>;
+  const getRedirectPath = () => {
+    if (role === "admin") {
+      return "/admin";
+    }
+    return "/products";
+  };
 
   return (
     <Router>
       <Toaster position="top-right" reverseOrder={false} />
       <Routes>
-        {/* Public Routes */}
         <Route path="/" element={<Layout />}>
+          {/* Public Routes */}
           <Route index element={<ProductGrid />} />
           <Route path="products" element={<ProductGrid />} />
+          {/* Protected Admin Route */}
+          <Route element={<ProtectedRoute requiredRole="admin" />}>
+            <Route path="admin" element={<Dashboard />} />
+          </Route>
         </Route>
         <Route
           path="/login"
-          element={!user ? <Login /> : <Navigate to="/products" />}
+          element={!user ? <Login /> : <Navigate to={getRedirectPath()} />}
         />
         <Route
           path="/register"
-          element={!user ? <Register /> : <Navigate to="/products" />}
+          element={!user ? <Register /> : <Navigate to={getRedirectPath()} />}
         />
-
-        {/* Protected User Route */}
-        {/* <Route element={<ProtectedRoute />}>
-    <Route path="/dashboard" element={<Dashboard />} />
-  </Route> */}
-
-        {/* Protected Admin Route */}
-        <Route element={<ProtectedRoute requiredRole="admin" />}>
-          <Route path="/admin" element={<Dashboard />} />
-        </Route>
 
         {/* Redirect unknown routes */}
         <Route path="*" element={<Navigate to="/" />} />

@@ -1,5 +1,5 @@
 import { NextFunction, Request, Response } from "express";
-import {auth} from "../config/firebase.js";
+import { auth } from "../config/firebase.js";
 declare global {
   namespace Express {
     interface Request {
@@ -8,7 +8,7 @@ declare global {
   }
 }
 
-export const authenticate = async (
+const authenticate = async (
   req: Request,
   res: Response,
   next: NextFunction
@@ -27,3 +27,4 @@ export const authenticate = async (
     return;
   }
 };
+export default authenticate;

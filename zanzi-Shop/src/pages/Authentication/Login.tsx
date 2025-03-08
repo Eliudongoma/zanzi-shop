@@ -4,6 +4,7 @@ import { loginUser } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { Flex, Box, VStack, Input, Button, Spinner, Heading } from "@chakra-ui/react";
 import { useCustomColor } from "../../hooks/useCustomColor";
+import useUserRole from "../../hooks/useUserRole";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -12,6 +13,8 @@ const Login = () => {
   const navigate  = useNavigate();
   const [error, setError]  = useState<string | null>(null);
   const { textColor, bgColor, buttonBg, buttonText} = useCustomColor();
+  const {role} = useUserRole();
+
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -19,7 +22,7 @@ const Login = () => {
         try {
           await loginUser(email, password);
           toast.success('Login successful!');
-          navigate('/'); // Redirect to home or dashboard
+          navigate(role === "admin" ? "/admin" : "/products");
         } catch (error) {
           if (error instanceof Error) {
             setError(error.message);
@@ -39,8 +42,8 @@ const Login = () => {
             width={{ base: "90%", md: "400px" }}
           >
             <Heading mb={5}>LOGIN</Heading>
-            {error && <p color={textColor}>{error}</p>}
-            <br/>
+            {error && <p color={textColor}>{error} <br/></p>}
+           
             <form onSubmit={handleLogin}>
               <VStack gap={4}>
                 <Input

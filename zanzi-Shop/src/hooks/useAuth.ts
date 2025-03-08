@@ -3,7 +3,7 @@ import { auth, db } from "../config/firebaseConfig";
 import { doc, setDoc } from "firebase/firestore";
 import { FirebaseError } from "firebase/app";
 
-export const registerUser = async (email: string, password: string) => {
+export const registerUser = async (email: string, password: string, role: string) => {
   try {
     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
     const user = userCredential.user;
@@ -12,7 +12,7 @@ export const registerUser = async (email: string, password: string) => {
     await setDoc(doc(db, "users", user.uid), {
       email: user.email,
       createdAt: new Date(),
-      role: "user"
+      role: role
     });
     
     return user;
@@ -25,8 +25,18 @@ export const registerUser = async (email: string, password: string) => {
           throw new Error('Invalid email address');
         case 'auth/weak-password':
           throw new Error('Password is too weak');
+        case 'auth/operation-not-allowed':
+          throw new Error('Email/password registration is not enabled');
+        case 'auth/missing-email':
+          throw new Error('Email is required');
+        case 'auth/missing-password':
+          throw new Error('Password is required');
+        case 'auth/network-request-failed':
+          throw new Error('Network error. Check your connection and try again');
+        case 'auth/too-many-requests':
+          throw new Error('Too many requests. Please try again later');
         default:
-          throw new Error('Registration failed');
+          throw new Error(`Registration failed: ${error.code}`);
       }
     }
     throw error;
@@ -46,8 +56,16 @@ export const loginUser = async (email: string, password: string) => {
           throw new Error('Incorrect password');
         case 'auth/invalid-email':
           throw new Error('Invalid email address');
+        case 'auth/invalid-credential':
+          throw new Error('Invalid credentials');
+        case 'auth/invalid-login-credentials':
+          throw new Error('Invalid login credentials');
+        case 'auth/too-many-requests':
+          throw new Error('Too many failed login attempts. Please try again later');
+        case 'auth/user-disabled':
+          throw new Error('This account has been disabled');
         default:
-          throw new Error('Login failed Please try again');
+          throw new Error(`Authentication error: ${error.code}`);
       }
     }
     throw error;
