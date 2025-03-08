@@ -42,7 +42,9 @@ const Login = () => {
             width={{ base: "90%", md: "400px" }}
           >
             <Heading mb={5}>LOGIN</Heading>
-            {error && <p color={textColor}>{error} <br/></p>}
+            {error && <VStack align={"start"} color={textColor}>
+              <p>{error} </p> <br/>
+            </VStack>}
            
             <form onSubmit={handleLogin}>
               <VStack gap={4}>
@@ -56,6 +58,7 @@ const Login = () => {
                 />
                 <Input
                   type="password"
+                  color={textColor}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

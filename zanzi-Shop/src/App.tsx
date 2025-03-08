@@ -35,7 +35,7 @@ function App() {
           <Route path="products" element={<ProductGrid />} />
           {/* Protected Admin Route */}
           <Route element={<ProtectedRoute requiredRole="admin" />}>
-            <Route path="admin" element={<Dashboard />} />
+            <Route path="/admin" element={<Dashboard />} />
           </Route>
         </Route>
         <Route
