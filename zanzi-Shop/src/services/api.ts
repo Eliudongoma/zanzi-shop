@@ -12,8 +12,9 @@ const api = axios.create({
 export class ApiService<T> {
   constructor(private endpoint: string) {}
   //Get ALL
-  async getAll(config?: AxiosRequestConfig): Promise<T[]> {
+  async getAll(signal?: AbortSignal): Promise<T[]> {
     try {
+      const config: AxiosRequestConfig = { signal};
       const response: AxiosResponse<T[]> = await api.get(this.endpoint, config);
       return response.data;
     } catch (error) {
@@ -22,8 +23,9 @@ export class ApiService<T> {
     }
   }
   //Get By
-  async getById(id: string, config?: AxiosRequestConfig): Promise<T> {
+  async getById(id: string,signal?: AbortSignal): Promise<T> {
     try {
+      const config: AxiosRequestConfig = { signal};
       const response: AxiosResponse<T> = await api.get(
         `${this.endpoint}${id}`,
         config
@@ -35,8 +37,9 @@ export class ApiService<T> {
     }
   }
   //Create
-  async create(data: T, config?: AxiosRequestConfig): Promise<ResponseType<T>> {
+  async create(data: T, signal?: AbortSignal): Promise<ResponseType<T>> {
     try {
+      const config: AxiosRequestConfig = { signal};
       const response: AxiosResponse<ResponseType<T>> = await api.post(
         this.endpoint,
         data,
@@ -52,9 +55,10 @@ export class ApiService<T> {
   async update(
     id: string,
     data: Partial<T>,
-    config?: AxiosRequestConfig
+    signal?: AbortSignal
   ): Promise<ResponseType<T>> {
     try {
+      const config: AxiosRequestConfig = { signal};
       const response: AxiosResponse<ResponseType<T>> = await api.put(
         `${this.endpoint}${id}`,
         data,
@@ -67,8 +71,9 @@ export class ApiService<T> {
     }
   }
   //Delete
-  async delete(id: string, config?: AxiosRequestConfig): Promise<void> {
+  async delete(id: string, signal?: AbortSignal): Promise<void> {
     try {
+      const config: AxiosRequestConfig = { signal};
       await api.delete(`${this.endpoint}${id}`, config);
     } catch (error) {
       this.handleError(error);

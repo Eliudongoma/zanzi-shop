@@ -9,11 +9,12 @@ import {
 import { Product } from "../../../types";
 import ProductForm from "./ProductForm";
 import { useState } from "react";
-import useFetchProducts from "../../../hooks/useFetchProducts";
+import useFetchProducts from "../../../hooks/FetchData/useFetchProducts";
 import { productService } from "../../../services/apiServices";
+import Spin from "../../../components/Spinner";
 
 const ProductManagement = () => {
-  const { products, fetchProducts } = useFetchProducts();
+  const { data: products, loading, fetchData, error } = useFetchProducts();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const handleEdit = (product: Product) => {
@@ -23,11 +24,16 @@ const ProductManagement = () => {
   const handleDelete = async (id: string) => {
     try {
       await productService.delete(id);
-      fetchProducts();
+      fetchData();
     } catch (error) {
       console.log("Error deleting Product", error);
     }
   };
+  if (loading) return <Spin />;
+  <div>
+    <p>Error: {error?.message}</p>
+    <button onClick={fetchData}>Retry</button>
+  </div>;
 
   return (
     <Box>
@@ -93,7 +99,7 @@ const ProductManagement = () => {
             }}
           >
             <ProductForm
-              onSuccess={fetchProducts}
+              onSuccess={fetchData}
               onClose={onClose}
               editingProduct={editingProduct}
             />
