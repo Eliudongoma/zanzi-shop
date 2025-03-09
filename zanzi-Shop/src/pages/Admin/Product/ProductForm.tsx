@@ -1,5 +1,6 @@
 import {
   Button,
+  createListCollection,
   Fieldset,
   HStack,
   Input,
@@ -18,13 +19,23 @@ import axios from "axios";
 import FormField from "../../../components/FormField";
 import { useCustomColor } from "../../../hooks/useCustomColor";
 import { useEffect, useState } from "react";
-import SelectCategory from "../../../components/Product/SelectCategory";
+import SelectItems from "../../../components/SelectItems";
 
 interface ProductFormProps {
   onClose: () => void;
   onSuccess: () => void;
   editingProduct: Product | null;
 }
+const categories = createListCollection({
+  items: [
+    { value: "foods & Bevarages", label: "Foods & Bevarages" },
+    { value: "spices", label: "Spices" },
+    { value: "electronics", label: "Electronics" },
+    { value: "foods & Bevaragess", label: "Foods & Bevarages" },
+    { value: "spicess", label: "Spices" },
+    { value: "electronicss", label: "Electronics" },
+  ],
+});
 
 const ProductForm = ({
   onSuccess,
@@ -126,7 +137,7 @@ const ProductForm = ({
               error={errors.category}
               component="custom"
             >
-              <SelectCategory />
+              <SelectItems collections={categories} />
             </FormField>
 
             <FormField<Product>

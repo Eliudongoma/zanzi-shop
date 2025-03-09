@@ -9,7 +9,7 @@ const router = express.Router();
 // Add this line for creating a new user
 router.post("/users", register); // Create a new user (POST to /api/users)
 
-// router.get("/", authenticate, getAllUsers);
+router.get("/", authenticate, getAllUsers);
 // router.get("/:id", authenticate, getUser);
 // router.put("/:id", authenticate, updateUser);
 // router.delete("/:id", authenticate, deleteUser);

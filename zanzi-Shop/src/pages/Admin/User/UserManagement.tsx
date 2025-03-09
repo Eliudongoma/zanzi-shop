@@ -1,107 +1,120 @@
-// import { Box, Button, Table, useDisclosure } from "@chakra-ui/react";
-// import {
-//   DialogBody,
-//   DialogCloseTrigger,
-//   DialogContent,
-//   DialogHeader,
-//   DialogRoot,
-// } from "../../../components/ui/dialog";
-// import { User } from "../../../../types";
-// import UserForm from "./UserForm";
-// import { useState } from "react";
-// import useFetchProducts from "../../../hooks/FetchData/useFetchProducts";
-// import { userService } from "../../../services/apiServices";
+import { Box, Button, Table, useDisclosure } from "@chakra-ui/react";
+import {
+  DialogBody,
+  DialogCloseTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogRoot,
+} from "../../../components/ui/dialog";
+import { useState } from "react";
+import useFetchUsers from "../../../hooks/FetchData/useFetchUsers";
+import { User } from "../../../types";
+import { userService } from "../../../services/apiServices";
+import UserForm from "./UserForm";
+import AppError from "../../../components/AppError";
+import Loading from "../../../components/Loading";
 
-// const ProductManagement = () => {
-//   const { products, fetchProducts } = useFetchProducts();
-//   const { open, onOpen, onClose } = useDisclosure();
-//   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-//   const handleEdit = (product: Product) => {
-//     setEditingProduct(product);
-//     onOpen();
-//   };
-//   const handleDelete = async (id: string) => {
-//     try {
-//       await productService.delete(id);
-//       fetchProducts();
-//     } catch (error) {
-//       console.log("Error deleting Product", error);
-//     }
-//   };
+const UserManagement = () => {
+  const { data: users, loading, fetchData, error, attempts } = useFetchUsers();
+  const { open, onOpen, onClose } = useDisclosure();
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    onOpen();
+  };
+  const handleDelete = async (id: string) => {
+    try {
+      await userService.delete(id);
+      fetchData();
+    } catch (error) {
+      console.log("Error deleting user", error);
+    }
+  };
+  if (loading) {
+      return <Loading message={`Loading products... (Attempt ${attempts + 1} of 3)`} />;
+    }
+  
+    if (error) {
+      return <AppError error={error} onRetry={fetchData} />;
+    }
 
-//   return (
-//     <Box>
-//       <Button
-//         colorScheme="teal"
-//         mb={4}
-//         onClick={() => {
-//           setEditingProduct(null);
-//           onOpen();
-//         }}
-//       >
-//         Add New Product
-//       </Button>
+  return (
+    <Box>
+      <Button
+        colorScheme="teal"
+        mb={4}
+        onClick={() => {
+          setEditingUser(null);
+          onOpen();
+        }}
+      >
+        Add New user
+      </Button>
 
-//       <Table.Root variant="line">
-//         <Table.Header>
-//           <Table.Row>
-//             <Table.ColumnHeader>Name</Table.ColumnHeader>
-//             <Table.ColumnHeader>Price</Table.ColumnHeader>
-//             <Table.ColumnHeader>Stock</Table.ColumnHeader>
-//             <Table.ColumnHeader>Actions</Table.ColumnHeader>
-//           </Table.Row>
-//         </Table.Header>
-//         <Table.Body>
-//           {products.map((product, index) => (
-//             <Table.Row key={product._id || index}>
-//               <Table.Cell>{product.name}</Table.Cell>
-//               <Table.Cell>ksh {product.price}</Table.Cell>
-//               <Table.Cell>{product.stock}</Table.Cell>
-//               <Table.Cell>
-//                 <Button size="sm" mr={2} onClick={() => handleEdit(product)}>
-//                   Edit
-//                 </Button>
-//                 <Button
-//                   size="sm"
-//                   colorScheme="red"
-//                   onClick={() => handleDelete(product._id)}
-//                 >
-//                   Delete
-//                 </Button>
-//               </Table.Cell>
-//             </Table.Row>
-//           ))}
-//         </Table.Body>
-//       </Table.Root>
+      <Table.Root variant="line">
+        <Table.Header>
+          <Table.Row>
+            <Table.ColumnHeader>First Name</Table.ColumnHeader>
+            <Table.ColumnHeader>Last Name</Table.ColumnHeader>
+            <Table.ColumnHeader>Email Address</Table.ColumnHeader>
+            <Table.ColumnHeader>Phone Number</Table.ColumnHeader>
+            <Table.ColumnHeader>Role</Table.ColumnHeader>
+            <Table.ColumnHeader>Actions</Table.ColumnHeader>
+          </Table.Row>
+        </Table.Header>
+        <Table.Body>
+          {users.map((user, index) => (
+            <Table.Row key={user.firebaseUid || index}>
+              <Table.Cell>{user.firstName}</Table.Cell>
+              <Table.Cell>{user.lastName}</Table.Cell>
+              <Table.Cell>{user.email}</Table.Cell>
+              <Table.Cell>{user.phoneNumber}</Table.Cell>
+              <Table.Cell>{user.role}</Table.Cell>
+              <Table.Cell>
+                <Button size="sm" mr={2} onClick={() => handleEdit(user)}>
+                  Edit
+                </Button>
+                <Button
+                  size="sm"
+                  colorScheme="red"
+                  onClick={() => handleDelete(user.firebaseUid)}
+                >
+                  Delete
+                </Button>
+              </Table.Cell>
+            </Table.Row>
+          ))}
+        </Table.Body>
+      </Table.Root>
 
-//       <DialogRoot open={open} onOpenChange={onClose}>
-//         <DialogContent
-//           style={{
-//             maxHeight: "80vh",
-//             overflow: "auto",
-//           }}
-//         >
-//           <DialogHeader>
-//             {editingProduct ? "Edit Product" : "Add New Product"}
-//           </DialogHeader>
-//           <DialogCloseTrigger />
-//           <DialogBody
-//             style={{
-//               maxHeight: "60vh",
-//               overflow: "auto",
-//               padding: "1rem",
-//             }}
-//           >
-//             <ProductForm
-//               onSuccess={fetchProducts}
-//               onClose={onClose}
-//               editingProduct={editingProduct}
-//             />
-//           </DialogBody>
-//         </DialogContent>
-//       </DialogRoot>
-//     </Box>
-//   );
-// };
+      <DialogRoot open={open} onOpenChange={onClose}>
+        <DialogContent
+          style={{
+            maxHeight: "80vh",
+            overflow: "auto",
+          }}
+        >
+          <DialogHeader>
+            {editingUser ? "Edit user" : "Add New user"}
+          </DialogHeader>
+          <DialogCloseTrigger />
+          <DialogBody
+            style={{
+              maxHeight: "60vh",
+              overflow: "auto",
+              padding: "1rem",
+            }}
+          >
+            <UserForm
+              onSuccess={fetchData}
+              onClose={onClose}
+              editingUser={editingUser}
+            />
+          </DialogBody>
+        </DialogContent>
+      </DialogRoot>
+    </Box>
+  );
+};
 
-// export default ProductManagement;
+export default UserManagement;

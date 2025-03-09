@@ -28,7 +28,6 @@ const useUserRole = () => {
 
       timeoutIdRef.current = setTimeout(() => {
         if (!hasFetchedRole.current) {
-          console.log("Timeout triggered, setting role to 'user'");
           setError(new Error("Unable to connect to the server"));
           setIsOffline(true);
           setRole("user");
@@ -46,7 +45,6 @@ const useUserRole = () => {
           if (userDoc.exists() && !hasFetchedRole.current) {
             const fetchedRole = userDoc.data().role;
             setRole(fetchedRole || "user");
-            console.log("Set role to:", fetchedRole || "user");
             hasFetchedRole.current = true;
           } else if (!hasFetchedRole.current) {
             setRole("user");
@@ -61,7 +59,6 @@ const useUserRole = () => {
             timeoutIdRef.current = null;
           }
           if (!hasFetchedRole.current) {
-            console.error("Firestore error:", err);
             setError(err);
             setRole("user");
             if (err.message.includes("network") || err.code === "unavailable") {
@@ -80,10 +77,6 @@ const useUserRole = () => {
 
     return cleanup;
   }, [user]);
-
-  useEffect(() => {
-    console.log("Role state updated to:", role);
-  }, [role]);
 
   return { user, role, error, isOffline };
 };

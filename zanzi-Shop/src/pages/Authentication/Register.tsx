@@ -35,7 +35,7 @@ const Register = () => {
       password: "",
       phoneNumber: "",
       registeredAt: new Date(),
-      role: "admin",
+      role: "user",
     },
   });
 
