@@ -9,7 +9,8 @@ import {
 } from "@chakra-ui/react";
 import { Product } from "../../../types";
 import { productService } from "../../../services/apiServices";
-import ProductSchema from "./ProductSchema";
+import ProductSchema from "../../../Schemas/ProductSchema";
+
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { v4 as uuidv4 } from "uuid";

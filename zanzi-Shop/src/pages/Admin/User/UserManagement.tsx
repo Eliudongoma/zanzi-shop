@@ -31,7 +31,7 @@ const UserManagement = () => {
     }
   };
   if (loading) {
-      return <Loading message={`Loading products... (Attempt ${attempts + 1} of 3)`} />;
+      return <Loading message={`Loading users... (Attempt ${attempts + 1} of 3)`} />;
     }
   
     if (error) {
