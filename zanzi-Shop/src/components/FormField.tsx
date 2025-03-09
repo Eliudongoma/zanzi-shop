@@ -49,7 +49,7 @@ function FormField<TFormValues extends FieldValues>({
   return (
     <Fieldset.Content mt={mt}>
       <Field label={label}>
-        {component === "input" && togglePassword && (
+        {component === "input" && togglePassword ? (
           <InputGroup
             endElement={
               <IconButton
@@ -64,8 +64,8 @@ function FormField<TFormValues extends FieldValues>({
           >
             <Input {...register(name)} type={inputType} placeholder={placeHolder} />
           </InputGroup>
-        )}
-        {component === "input" && <Input {...register(name)} type={type} placeholder={placeHolder} />}
+        ) :
+        (component === "input" && <Input {...register(name)} type={type} placeholder={placeHolder} />)}
         {component === "textarea" && <Textarea {...register(name)} placeholder={placeHolder} />}
         {component === "custom" && children}
         {error && <span style={{ color: "red" }}>{error.message}</span>}

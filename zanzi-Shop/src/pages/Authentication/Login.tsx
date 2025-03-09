@@ -2,25 +2,40 @@ import { useState } from "react";
 import { toast } from "react-hot-toast";
 import { loginUser } from "../../hooks/useAuth";
 import { useNavigate } from "react-router-dom";
-import { Flex, Box, VStack, Input, Button, Spinner, Heading } from "@chakra-ui/react";
+import { Flex, Box, VStack, Button, Spinner, Heading, Fieldset } from "@chakra-ui/react";
 import { useCustomColor } from "../../hooks/useCustomColor";
 import useUserRole from "../../hooks/useUserRole";
+import LoginSchema from "./LoginSchema";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import FormField from "../../components/FormField";
+import { z } from "zod";
+
+type LoginFormValues = z.infer<typeof LoginSchema>
 
 const Login = () => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [isLoading, setLoading] = useState(false);
   const navigate  = useNavigate();
   const [error, setError]  = useState<string | null>(null);
   const { textColor, bgColor, buttonBg, buttonText} = useCustomColor();
   const {role} = useUserRole();
 
+  const {
+      handleSubmit,
+      register,
+      formState: { errors },
+    } = useForm<LoginFormValues>({
+      resolver: zodResolver(LoginSchema),
+      defaultValues: {
+        email: "",
+        password: "",
+      },
+    });
 
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const onSubmit = async (data:LoginFormValues) => {
         setLoading(true)
         try {
-          await loginUser(email, password);
+          await loginUser(data.email, data.password);
           toast.success('Login successful!');
           navigate(role === "admin" ? "/admin" : "/products");
         } catch (error) {
@@ -46,24 +61,26 @@ const Login = () => {
               <p>{error} </p> <br/>
             </VStack>}
            
-            <form onSubmit={handleLogin}>
+            <form onSubmit={handleSubmit(onSubmit)}>
               <VStack gap={4}>
-                <Input
+                <Fieldset.Root>
+                  <FormField<LoginFormValues>
                   type="email"
-                  placeholder="Email"
-                  value={email}
-                  color={textColor}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <Input
-                  type="password"
-                  color={textColor}
-                  placeholder="Password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                  label="Email address"
+                  name="email"
+                  register={register}
+                  placeHolder="Enter email address"
+                  error={errors.email}
+                  />
+                  <FormField<LoginFormValues>
+                    type="passowrd"
+                    togglePassword={true}
+                    label="Password"
+                    name="password"
+                    register={register}
+                    placeHolder="Enter your Password"
+                    />
+                </Fieldset.Root>               
                 <Button type="submit" color={buttonText} bg={buttonBg} width="full" disabled={isLoading}>
                   {isLoading ? <Spinner/> : "Login"}
                 </Button>

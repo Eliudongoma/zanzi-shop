@@ -113,6 +113,7 @@ const Register = () => {
               <FormField<RegisterFormValues>
                 label="Email Address"
                 name="email"
+                type="email"
                 register={register}
                 placeHolder="Enter Email Address"
                 error={errors.email}
