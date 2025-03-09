@@ -1,13 +1,8 @@
 import { SimpleGrid } from "@chakra-ui/react";
-// import { ProductQuery } from "../../App";
 import useFetchProducts from "../../hooks/FetchData/useFetchProducts";
 import ProductContainer from "./ProductContainer";
 import ProductCard from "./ProductCard";
 import SkeletonProductCard from "./SkeletonProductCard";
-
-// interface ProductProps {
-//   productQuery: ProductQuery;
-// }
 
 const ProductGrid = () => {
   const { data:products, loading } = useFetchProducts();

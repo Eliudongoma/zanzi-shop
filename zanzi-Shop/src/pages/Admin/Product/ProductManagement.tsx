@@ -11,10 +11,11 @@ import ProductForm from "./ProductForm";
 import { useState } from "react";
 import useFetchProducts from "../../../hooks/FetchData/useFetchProducts";
 import { productService } from "../../../services/apiServices";
-import Spin from "../../../components/Spinner";
+import Loading from "../../../components/Loading";
+import AppError from "../../../components/AppError";
 
 const ProductManagement = () => {
-  const { data: products, loading, fetchData, error } = useFetchProducts();
+  const { data: products, loading, fetchData, error, attempts } = useFetchProducts();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const handleEdit = (product: Product) => {
@@ -29,11 +30,13 @@ const ProductManagement = () => {
       console.log("Error deleting Product", error);
     }
   };
-  if (loading) return <Spin />;
-  <div>
-    <p>Error: {error?.message}</p>
-    <button onClick={fetchData}>Retry</button>
-  </div>;
+  if (loading) {
+    return <Loading message={`Loading products... (Attempt ${attempts + 1} of 3)`} />;
+  }
+
+  if (error) {
+    return <AppError error={error} onRetry={fetchData} />;
+  }
 
   return (
     <Box>
