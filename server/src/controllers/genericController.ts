@@ -1,6 +1,6 @@
 import { Model } from "mongoose"
 import { Request, Response } from "express"
-import Joi from "joi"
+import z from "zod"
 
 
 interface CRUDController {
