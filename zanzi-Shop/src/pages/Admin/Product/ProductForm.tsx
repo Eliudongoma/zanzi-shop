@@ -1,14 +1,24 @@
-import { Fieldset, Input, Textarea, Button } from "@chakra-ui/react";
+import {
+  Button,
+  Fieldset,
+  HStack,
+  Input,
+  Spinner,
+  VStack,
+} from "@chakra-ui/react";
 import { Product } from "../../../types";
 import { productService } from "../../../services/apiServices";
 import ProductSchema from "./ProductSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Field } from "../../../components/ui/field";
 import { v4 as uuidv4 } from "uuid";
 import ImagePicker from "../../../components/ImagePicker";
 import toast from "react-hot-toast";
 import axios from "axios";
+import FormField from "../../../components/FormField";
+import { useCustomColor } from "../../../hooks/useCustomColor";
+import { useEffect, useState } from "react";
+import SelectCategory from "../../../components/Product/SelectCategory";
 
 interface ProductFormProps {
   onClose: () => void;
@@ -26,6 +36,7 @@ const ProductForm = ({
     register,
     setValue,
     formState: { errors },
+    reset,
   } = useForm<Product>({
     resolver: zodResolver(ProductSchema),
     defaultValues: {
@@ -41,17 +52,25 @@ const ProductForm = ({
   });
   const handleImageUpload = (imageUrl: string) => {
     setValue("imageUrl", imageUrl);
-  }
+  };
+  const { buttonBg, buttonText } = useCustomColor();
+  const [isLoading, setIsLoading] = useState(false);
 
+  useEffect(() => {
+    if (editingProduct) {
+      reset(editingProduct);
+    }
+  }, [editingProduct, reset]);
   const onSubmit = async (data: Product) => {
+    setIsLoading(true);
     try {
-      if(editingProduct){
-        const response = await productService.update(data._id,data);
-        toast.success(response.message)
-      }else{
+      if (editingProduct) {
+        const response = await productService.update(data._id, data);
+        toast.success(response.message);
+      } else {
         const newProduct = { ...data, _id: uuidv4() };
         const response = await productService.create(newProduct);
-        toast.success(response.message)
+        toast.success(response.message);
       }
       onSuccess();
       onClose();
@@ -61,73 +80,91 @@ const ProductForm = ({
       } else {
         toast.error("Something went wrong");
       }
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
-      <Fieldset.Root>
-        <Fieldset.Content>
-          <Field label="Name">
-            <Input {...register("name")} />
-            {errors.name && (
-              <span style={{ color: "red" }}>{errors.name.message}</span>
-            )}
-          </Field>
-        </Fieldset.Content>
-        <Fieldset.Content mt={4}>
-          <Field label="Description">
-            <Textarea {...register("description")} />
-            {errors.description && (
-              <span style={{ color: "red" }}>{errors.description.message}</span>
-            )}
-          </Field>
-        </Fieldset.Content>
-        <Fieldset.Content mt={4}>
-          <Field label="Price">
-            <Input {...register("price")} type="number" />
-            {errors.price && (
-              <span style={{ color: "red" }}>{errors.price.message}</span>
-            )}
-          </Field>
-        </Fieldset.Content>
-        <Fieldset.Content mt={4}>
-          <Field label="Weight">
-            <Input {...register("weight")} />
-            {errors.weight && (
-              <span style={{ color: "red" }}>{errors.weight.message}</span>
-            )}
-          </Field>
-        </Fieldset.Content>
-        <Fieldset.Content mt={4}>
-          <Field label="Category">
-            <Input {...register("category")} />
-            {errors.category && (
-              <span style={{ color: "red" }}>{errors.category.message}</span>
-            )}
-          </Field>
-        </Fieldset.Content>
-        <Fieldset.Content mt={4}>
-          <Field label="Image URL">
-            <ImagePicker onUpload={handleImageUpload}/>
-            {errors.imageUrl && (
-              <span style={{ color: "red" }}>{errors.imageUrl.message}</span>
-            )}
-          </Field>
-          <Input type="hidden" {...register("imageUrl")} />
-        </Fieldset.Content>
-        <Fieldset.Content mt={4}>
-          <Field label="Stock">
-            <Input {...register("stock")} type="number" />
-            {errors.stock && (
-              <span style={{ color: "red" }}>{errors.stock.message}</span>
-            )}
-          </Field>
-        </Fieldset.Content>
-        <Button mt={4} colorScheme="teal" type="submit">
-          Submit
+      <VStack gap={3}>
+        <Fieldset.Root>
+          <FormField<Product>
+            label="Name"
+            name="name"
+            register={register}
+            placeHolder="Enter Product Name"
+            error={errors.name}
+          />
+          <FormField<Product>
+            label="Description"
+            name="description"
+            register={register}
+            placeHolder="Enter Product Description"
+            error={errors.description}
+            component="textarea"
+          />
+          <HStack>
+            <FormField<Product>
+              label="Price"
+              name="price"
+              register={register}
+              error={errors.price}
+              type="number"
+            />
+            <FormField<Product>
+              label="Weight"
+              name="weight"
+              register={register}
+              error={errors.weight}
+            />
+          </HStack>
+          <HStack>
+            <FormField<Product>
+              name="category"
+              register={register}
+              error={errors.category}
+              component="custom"
+            >
+              <SelectCategory />
+            </FormField>
+
+            <FormField<Product>
+              label="Stock"
+              name="stock"
+              register={register}
+              error={errors.stock}
+              type="number"
+            />
+          </HStack>
+          <FormField<Product>
+            label="Image URL"
+            name="imageUrl"
+            register={register}
+            error={errors.imageUrl}
+            component="custom"
+          >
+            <ImagePicker onUpload={handleImageUpload} />
+            <Input type="hidden" {...register("imageUrl")} />
+          </FormField>
+        </Fieldset.Root>
+        <Button
+          mt={4}
+          bg={buttonBg}
+          color={buttonText}
+          type="submit"
+          width="full"
+          disabled={isLoading}
+        >
+          {isLoading ? (
+            <Spinner />
+          ) : editingProduct ? (
+            "Update Product"
+          ) : (
+            "Create Product"
+          )}
         </Button>
-      </Fieldset.Root>
+      </VStack>
     </form>
   );
 };

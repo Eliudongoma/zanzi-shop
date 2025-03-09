@@ -12,12 +12,18 @@ import ProductGrid from "./components/Product/ProductGrid";
 import Register from "./pages/Authentication/Register";
 import Dashboard from "./pages/Admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
+import { Center, Spinner } from "@chakra-ui/react";
 
 function App() {
   const { user, role } = useUserRole();
-  // console.log(role === "admin")
 
-  // if (user === null) return <div>Loading...</div>;
+  if (user === undefined || (user && role === null)) {
+    return (
+      <Center h="100vh">
+        <Spinner size="xl" />
+      </Center>
+    );
+  }
   const getRedirectPath = () => {
     if (role === "admin") {
       return "/admin";

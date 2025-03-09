@@ -25,7 +25,7 @@ export class ApiService<T> {
   async getById(id: string, config?: AxiosRequestConfig): Promise<T> {
     try {
       const response: AxiosResponse<T> = await api.get(
-        `${this.endpoint}/${id}`,
+        `${this.endpoint}${id}`,
         config
       );
       return response.data;
@@ -56,7 +56,7 @@ export class ApiService<T> {
   ): Promise<ResponseType<T>> {
     try {
       const response: AxiosResponse<ResponseType<T>> = await api.put(
-        `${this.endpoint}/${id}`,
+        `${this.endpoint}${id}`,
         data,
         config
       );
@@ -69,7 +69,7 @@ export class ApiService<T> {
   //Delete
   async delete(id: string, config?: AxiosRequestConfig): Promise<void> {
     try {
-      await api.delete(`${this.endpoint}/${id}`, config);
+      await api.delete(`${this.endpoint}${id}`, config);
     } catch (error) {
       this.handleError(error);
       throw error;
