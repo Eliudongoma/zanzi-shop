@@ -17,25 +17,30 @@ const useFetch = <T>(
 
   const fetchData = useCallback(async () => {
     const controller = new AbortController();
+    let localAttempts = 0;
+    let result: T | undefined;
+    let fetchError: Error | null = null;
+
     setLoading(true);
     setError(null);
-    let result: T | undefined
-    let fetchError: Error | null = null;
-    for (let i = 0; i < maxRetries; i++) {
+
+    while (localAttempts < maxRetries) {
       try {
         result = await fetchFn(controller.signal);
         if (!controller.signal.aborted) {
           setData(result);
-          setHasFetched(true)
+          setHasFetched(true);
           setAttempts(0); // Reset attempts on success
-          break; // Exit loop on success
+          setLoading(false);
+          return; // Exit on success
         }
       } catch (err) {
         if (!controller.signal.aborted) {
           fetchError = err instanceof Error ? err : new Error("Unknown error occurred");
-          setAttempts((prev) => prev + 1); // Increment attempts
-          if (i < maxRetries - 1) {
-            // Wait before next retry (skip delay on last attempt)
+          localAttempts++;
+          setAttempts(localAttempts);
+
+          if (localAttempts < maxRetries) {
             await new Promise((resolve) => setTimeout(resolve, retryDelay));
           }
         }
@@ -43,25 +48,27 @@ const useFetch = <T>(
     }
 
     if (!controller.signal.aborted) {
-      if (fetchError && attempts >= maxRetries) {
-        setError(new Error("Network Error: Max retries exceeded"));
+      if (fetchError) {
+        setError(new Error(`Network Error: Max retries (${maxRetries}) exceeded`));
+        console.error(`Max retries (${maxRetries}) reached. Last error:`, fetchError);
       }
       setLoading(false);
     }
 
     return () => controller.abort();
-  }, [fetchFn, maxRetries, retryDelay, attempts]);
+  }, [fetchFn, maxRetries, retryDelay]); // Removed attempts from deps
 
   useEffect(() => {
     if (!autoFetch || hasFetched) return;
 
-    let abort: (() => void) | undefined;
-    fetchData().then((abortFn) => {
-      abort = abortFn;
+    let abortFn: (() => void) | undefined;
+    const fetchPromise = fetchData();
+    fetchPromise.then((cleanup) => {
+      abortFn = cleanup;
     });
 
     return () => {
-      if (abort) abort();
+      if (abortFn) abortFn();
     };
   }, [fetchData, autoFetch, hasFetched]);
 

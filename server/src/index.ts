@@ -12,9 +12,6 @@ app.use(cors());
 app.use(express.json());
 app.use("/api/auth", auth);
 
-// app.get("/profile", authenticateUser, async (req, res) => {
-//   res.json({message: "Access granted", user:req.userId});
-// });
 const { PORT, MONGO_URI } = config;
 
 connectDB();

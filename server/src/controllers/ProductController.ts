@@ -3,7 +3,7 @@ import Product from "../models/Product.js";
 import createCRUDController from "./genericController.js";
 
 // Create Product-specific controller
-const productController = createCRUDController(Product);
+const productController = createCRUDController(Product, "Product");
 
 // Export individual functions
 export const getAllProducts = productController.getAll;

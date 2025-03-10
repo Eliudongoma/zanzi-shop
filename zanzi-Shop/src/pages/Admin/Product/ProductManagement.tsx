@@ -13,6 +13,8 @@ import useFetchProducts from "../../../hooks/FetchData/useFetchProducts";
 import { productService } from "../../../services/apiServices";
 import Loading from "../../../components/Loading";
 import AppError from "../../../components/AppError";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const ProductManagement = () => {
   const { data: products, loading, fetchData, error, attempts } = useFetchProducts();
@@ -24,10 +26,15 @@ const ProductManagement = () => {
   };
   const handleDelete = async (id: string) => {
     try {
-      await productService.delete(id);
+      const response = await productService.delete(id);
+      toast.success(response.message)
       fetchData();
     } catch (error) {
-      console.log("Error deleting Product", error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "An error occurred");
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
   if (loading) {

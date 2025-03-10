@@ -3,7 +3,7 @@ import User from "../models/User.js";
 import createCRUDController from "./genericController.js";
 
 // Create User-specific controller
-const userController = createCRUDController(User);
+const userController = createCRUDController(User, "User");
 
 // Export individual functions
 export const getAllUsers = userController.getAll;

@@ -1,14 +1,48 @@
-import { Navigate, Outlet } from "react-router-dom";
+import { Navigate, Outlet, useLocation } from "react-router-dom";
 import useUserRole from "../hooks/useUserRole";
-import { Spinner } from "@chakra-ui/react";
+import Spinner from "./Spinner";
 
-const ProtectedRoute = ({ requiredRole }: { requiredRole?: string }) => {
-  const {role, user} = useUserRole();
+interface RouteType {
+  requiredRole?: string;
+  children?: React.ReactNode;
+}
 
-  if (user && role === null) return <div><Spinner/></div>;
-  if (!user) return <Navigate to="/login" />; // Redirect if not logged in
-  if (requiredRole && role !== requiredRole) return <Navigate to="/" />; // Redirect if role doesn't match
+const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
+  const { role, user } = useUserRole();
+  const location = useLocation();
 
-  return <Outlet />;
+  if (user && role === null) return <Spinner />;
+  const getRedirectPath = () => {
+    const normalizePath = (path: string) => path.replace(/\/+$/, "");
+    const currentPath = normalizePath(location.pathname);
+    const exemptPaths = ["/login", "/register"].map(normalizePath);
+
+    if (!user) {
+      if (exemptPaths.includes(location.pathname)) return currentPath;
+      return "/products";
+    }
+
+    // Logged in: redirect based on role
+    const defaultPath = role === "admin" ? "/admin" : "/products";
+
+    // If a specific role is required and doesn't match, redirect to default
+    if (requiredRole && role !== requiredRole) {
+      return defaultPath;
+    }
+
+    // If no requiredRole or role matches, stay on current path unless it’s exempt
+    if (currentPath !== defaultPath && !exemptPaths.includes(currentPath)) {
+      return defaultPath;
+    }
+
+    return currentPath; // Stay on current path if allowed
+  };
+
+  const targetPath = getRedirectPath();
+
+  if (location.pathname !== targetPath) {
+    return <Navigate to={targetPath} replace />;
+  }
+  return children ? <>{children}</> : <Outlet />;
 };
 export default ProtectedRoute;

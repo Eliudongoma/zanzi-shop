@@ -71,10 +71,11 @@ export class ApiService<T> {
     }
   }
   //Delete
-  async delete(id: string, signal?: AbortSignal): Promise<void> {
+  async delete(id: string, signal?: AbortSignal): Promise<ResponseType<T>> {
     try {
       const config: AxiosRequestConfig = { signal};
-      await api.delete(`${this.endpoint}${id}`, config);
+      const response = await api.delete(`${this.endpoint}${id}`, config);
+      return response.data
     } catch (error) {
       this.handleError(error);
       throw error;

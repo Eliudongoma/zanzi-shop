@@ -10,10 +10,8 @@ import {
 import { Product } from "../../../types";
 import { productService } from "../../../services/apiServices";
 import ProductSchema from "../../../Schemas/ProductSchema";
-
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from "uuid";
 import ImagePicker from "../../../components/ImagePicker";
 import toast from "react-hot-toast";
 import axios from "axios";
@@ -47,6 +45,7 @@ const ProductForm = ({
     handleSubmit,
     register,
     setValue,
+    watch,
     formState: { errors },
     reset,
   } = useForm<Product>({
@@ -80,8 +79,7 @@ const ProductForm = ({
         const response = await productService.update(data._id, data);
         toast.success(response.message);
       } else {
-        const newProduct = { ...data, _id: uuidv4() };
-        const response = await productService.create(newProduct);
+        const response = await productService.create(data);
         toast.success(response.message);
       }
       onSuccess();
@@ -138,7 +136,13 @@ const ProductForm = ({
               error={errors.category}
               component="custom"
             >
-              <SelectItems collections={categories} />
+              <SelectItems
+                collections={categories}
+                value={watch("category") ? [watch("category")] : []}
+                onchange={(value) => {
+                  setValue("category", value[0] || ""); // Update form field with first value
+                }}
+              />
             </FormField>
 
             <FormField<Product>
