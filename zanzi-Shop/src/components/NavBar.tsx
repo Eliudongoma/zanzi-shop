@@ -13,7 +13,7 @@ interface NavBarProps {
 }
 
 const NavBar = ({ onSearch }: NavBarProps) => {
-  const { items } = useCart();
+  const { cart } = useCart();
   const { textColor, accentColor, bgColor } = useCustomColor();
 
   return (
@@ -32,10 +32,10 @@ const NavBar = ({ onSearch }: NavBarProps) => {
 
       <RouterLink to="/cart">
         <Box position="relative" bg="transparent" _hover={{ opacity: 0.8 }}>
-          <BsCart size="20" />
+          <BsCart size="20"/>
           <Float>
             <Circle size="5" color={textColor} bg={accentColor}>
-              {items.length}
+              {cart.length}
             </Circle>
           </Float>
         </Box>

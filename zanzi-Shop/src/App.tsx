@@ -1,9 +1,4 @@
-import {
-  Navigate,
-  Route,
-  BrowserRouter as Router,
-  Routes,
-} from "react-router-dom";
+import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import useUserRole from "./hooks/useUserRole";
 import Layout from "./components/Layout";
@@ -14,6 +9,8 @@ import Dashboard from "./pages/Admin/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Loading from "./components/Loading";
 import AppError from "./components/AppError";
+import { NotFound } from "./pages/NotFound";
+import { Cart } from "./pages/CartPage";
 
 // Wrapper to handle redirects based on role
 const RoleBasedRedirect = ({ children }: { children: React.ReactNode }) => {
@@ -56,9 +53,11 @@ function App() {
               <Route path="admin" element={<Dashboard />} />
             </Route>
           </Route>
+          <Route path="/cart" element={<Cart />} />
+          {/* Moved outside ProtectedRoute */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
-          <Route path="*" element={<Navigate to="/" />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </RoleBasedRedirect>
     </Router>

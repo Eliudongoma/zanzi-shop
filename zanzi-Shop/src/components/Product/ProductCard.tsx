@@ -1,27 +1,16 @@
-import { Button, Card, Image, Text } from "@chakra-ui/react";
-import { useCart } from "../../hooks/useCart";
+import { Card, Image, Text } from "@chakra-ui/react";
 import { Product } from "../../types";
-import { toaster } from "../ui/toasterComp";
 import getCroppedImage from "../../services/imageUrls";
 import { useCustomColor } from "../../hooks/useCustomColor";
+import { AddToCartButton } from "./AddToCart";
 
 interface ProductCardProps {
   product: Product;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
-  const { addToCart } = useCart();
-  const { buttonBg, textColor } = useCustomColor();
-
-  const handleAddToCart = () => {
-    addToCart(product);
-    toaster.create({
-      title: "Product added to cart",
-      type: "success",
-      duration: 3000,
-    });
-  };
-
+  const { textColor } = useCustomColor();
+  
   return (
     <Card.Root>
       <Image src={getCroppedImage(product.imageUrl)} />
@@ -39,14 +28,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         </Text>
       </Card.Body>
       <Card.Footer gap="2">
-        <Button
-          variant="outline"
-          onClick={handleAddToCart}
-          borderRadius={4}
-          color={buttonBg}
-        >
-          Add to cart
-        </Button>
+        <AddToCartButton item={{ ...product, quantity: 1 }}/>
       </Card.Footer>
     </Card.Root>
   );

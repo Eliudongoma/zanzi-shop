@@ -6,7 +6,7 @@ interface RouteType {
   requiredRole?: string;
   children?: React.ReactNode;
 }
-
+const EXEMPT_PATHS = ['/login', '/register'];
 const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
   const { role, user } = useUserRole();
   const location = useLocation();
@@ -15,7 +15,7 @@ const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
   const getRedirectPath = () => {
     const normalizePath = (path: string) => path.replace(/\/+$/, "");
     const currentPath = normalizePath(location.pathname);
-    const exemptPaths = ["/login", "/register"].map(normalizePath);
+    const exemptPaths = EXEMPT_PATHS.map(normalizePath);
 
     if (!user) {
       if (exemptPaths.includes(location.pathname)) return currentPath;
