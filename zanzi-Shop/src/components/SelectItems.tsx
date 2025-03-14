@@ -1,6 +1,5 @@
 import {
   SelectRoot,
-  SelectLabel,
   SelectTrigger,
   SelectValueText,
   SelectContent,
@@ -32,9 +31,9 @@ const SelectItems = <T extends CollectProps>({
         onchange(selectedValue); // Pass the array to the parent
       }}
     >
-      <SelectLabel>Product Category</SelectLabel>
+      {/* <SelectLabel></SelectLabel> */}
       <SelectTrigger>
-        <SelectValueText placeholder="Select Category" />
+        <SelectValueText placeholder="Select" />
       </SelectTrigger>
 
       <SelectContent position={"absolute"} mt={10}>

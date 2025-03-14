@@ -56,7 +56,6 @@ const createCRUDController = <T>(
       const updatedItem = await Model.findByIdAndUpdate(_id, req.body, {
         new: true,
       });
-      console.log(updatedItem);
       if (!updatedItem) {
         res.status(404).json({ message: `${itemString} not found` });
       }
@@ -65,7 +64,6 @@ const createCRUDController = <T>(
         item: updatedItem,
       });
     } catch (error) {
-      console.log(error);
       res.status(500).json({ message: `Failed to update ${itemString}` });
     }
   },

@@ -7,7 +7,7 @@ import {
 } from '@chakra-ui/react';
 import ProductManagement from './Product/ProductManagement';
 // import OrderManagement from './OrderManagement';
-// import UserManagement from '../Admin/User/UserManagement';
+import UserManagement from '../Admin/User/UserManagement';
 
 const Dashboard:React.FC = () => {
   return (
@@ -52,7 +52,7 @@ const Dashboard:React.FC = () => {
             {/* <OrderManagement /> */}
           </Tabs.Content>
           <Tabs.Content value='users'>
-            {/* <UserManagement /> */}
+            <UserManagement />
           </Tabs.Content>
         </Tabs.List>
       </Tabs.Root>

@@ -11,7 +11,6 @@ import { userService } from "../../../services/apiServices";
 import RegisterSchema from "../../Authentication/RegisterSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { v4 as uuidv4 } from "uuid";
 import toast from "react-hot-toast";
 import axios from "axios";
 import FormField from "../../../components/FormField";
@@ -35,11 +34,14 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
   const {
     handleSubmit,
     register,
+    watch,
+    setValue,
     formState: { errors },
     reset,
   } = useForm<User>({
     resolver: zodResolver(RegisterSchema),
     defaultValues: {
+      _id:editingUser?._id || "",
       firebaseUid: editingUser?.firebaseUid || "",
       firstName: editingUser?.firstName || "",
       lastName: editingUser?.lastName || "",
@@ -59,14 +61,16 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
       reset(editingUser);
     }
   }, [editingUser, reset]);
-  const onSubmit = async (data: User) => {
+  const onsubmit = async (data: User) => {
+    // console.log(data)
+    console.log("Loading state false");
     setIsLoading(true);
     try {
       if (editingUser) {
         const response = await userService.update(data.firebaseUid, data);
         toast.success(response.message);
       } else {
-        const newUser = { ...data, _id: uuidv4() };
+        const newUser = { ...data };
         const response = await userService.create(newUser);
         toast.success(response.message);
       }
@@ -79,12 +83,13 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
         toast.error("Something went wrong");
       }
     } finally {
+      console.log("Loading state false");
       setIsLoading(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate>
+    <form onSubmit={handleSubmit(onsubmit)} noValidate>
       <VStack gap={3}>
         <Fieldset.Root>
           <HStack>
@@ -96,19 +101,29 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
               error={errors.firstName}
             />
             <FormField<User>
-              label="LastName"
+              label="Last Name"
               name="lastName"
               register={register}
               placeHolder="Enter Last Name"
               error={errors.lastName}
             />
           </HStack>
-          <FormField<User>
-            label="Email"
-            name="email"
-            register={register}
-            error={errors.email}
-          />
+          <HStack>
+            <FormField<User>
+              label="Email"
+              name="email"
+              register={register}
+              error={errors.email}
+            />
+            <FormField<User>
+              label="Password"
+              name="password"
+              register={register}
+              type="password"
+              error={errors.password}
+              togglePassword={true}
+            />
+          </HStack>
           <HStack>
             <FormField<User>
               label="Phone Number"
@@ -117,12 +132,19 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
               error={errors.phoneNumber}
             />
             <FormField<User>
+              label="Role"
               name="role"
               register={register}
               error={errors.role}
               component="custom"
             >
-              <SelectItems collections={roles} />
+              <SelectItems
+                collections={roles}
+                value={watch("role") ? [watch("role")] : []}
+                onchange={(value) => {
+                  setValue("role", (value[0] as "admin" | "user") || ""); // Update form field with first value
+                }}
+              />
             </FormField>
           </HStack>
         </Fieldset.Root>
@@ -133,6 +155,8 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
           type="submit"
           width="full"
           disabled={isLoading}
+          // onClick={() => console.log(isLoading)}
+          // _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
         >
           {isLoading ? (
             <Spinner />

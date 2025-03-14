@@ -15,7 +15,9 @@ const authenticate = async (
 ) => {
   const token = req.headers.authorization?.split(" ")[1];
   if (!token) {
-    res.status(401).json({ message: "Unauthorised: no token provided" });
+    if (!res.headersSent) { // Prevent sending multiple responses
+      res.status(401).json({ message: "Unauthorised: no token provided" });
+    }
     return;
   }
   try {

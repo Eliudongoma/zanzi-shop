@@ -14,6 +14,7 @@ export interface CartItem extends Product {
 }
 
 export interface User {
+  _id: string;
   firebaseUid: string;
   firstName: string;
   lastName: string;

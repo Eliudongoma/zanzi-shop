@@ -51,6 +51,7 @@ function FormField<TFormValues extends FieldValues>({
       <Field label={label}>
         {component === "input" && togglePassword ? (
           <InputGroup
+          width="full"
             endElement={
               <IconButton
                 aria-label="Toggle password visibility"

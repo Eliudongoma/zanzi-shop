@@ -131,6 +131,7 @@ const ProductForm = ({
           </HStack>
           <HStack>
             <FormField<Product>
+              label="Product Category"
               name="category"
               register={register}
               error={errors.category}

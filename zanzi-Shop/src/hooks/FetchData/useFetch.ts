@@ -1,3 +1,4 @@
+import axios from "axios";
 import { useCallback, useEffect, useState } from "react";
 
 type FetchFunction<T> = (signal: AbortSignal) => Promise<T>;
@@ -37,6 +38,12 @@ const useFetch = <T>(
       } catch (err) {
         if (!controller.signal.aborted) {
           fetchError = err instanceof Error ? err : new Error("Unknown error occurred");
+          if (axios.isAxiosError(err) && err.response?.status === 401) {
+            // Stop retries on 401 Unauthorized
+            setError(new Error("Unauthorized: Please log in"));
+            setLoading(false);
+            return;
+          }
           localAttempts++;
           setAttempts(localAttempts);
 
@@ -56,7 +63,7 @@ const useFetch = <T>(
     }
 
     return () => controller.abort();
-  }, [fetchFn, maxRetries, retryDelay]); // Removed attempts from deps
+  }, [fetchFn, maxRetries, retryDelay]); 
 
   useEffect(() => {
     if (!autoFetch || hasFetched) return;

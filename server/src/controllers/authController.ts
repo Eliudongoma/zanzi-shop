@@ -12,20 +12,25 @@ export const register = async (
 ): Promise<void> => {
   try {
     const {
-      firebaseUid,
       email,
       phoneNumber,
       role,
+      password,
       firstName,
       lastName,
     } = req.body;
+    const userRecord = await admin.auth().createUser({
+      email, password
+    })
+    await admin.auth().setCustomUserClaims(userRecord.uid, {role})
     const newUser = new User({
-      firebaseUID: firebaseUid,
+      firebaseUID: userRecord.uid,
       email,
       firstName,
       lastName,
       phoneNumber,
       role,
+      registeredAt: new Date()
     });
     await newUser.save();
     res.status(201).json({ message: "User Registered", newUser });

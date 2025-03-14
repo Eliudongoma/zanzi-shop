@@ -1,4 +1,4 @@
-import { Box, Button, Table, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, HStack, Table, useDisclosure } from "@chakra-ui/react";
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -15,11 +15,16 @@ import Loading from "../../../components/Loading";
 import AppError from "../../../components/AppError";
 import toast from "react-hot-toast";
 import axios from "axios";
+import { CiEdit } from "react-icons/ci";
+// import { useCustomColor } from "../../../hooks/useCustomColor";
+import { Tooltip } from "../../../components/ui/tooltip"
+import { LuTrash2 } from "react-icons/lu";
 
 const ProductManagement = () => {
   const { data: products, loading, fetchData, error, attempts } = useFetchProducts();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
+  // const {buttonBg} = useCustomColor()
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     onOpen();
@@ -74,16 +79,21 @@ const ProductManagement = () => {
               <Table.Cell>ksh {product.price}</Table.Cell>
               <Table.Cell>{product.stock}</Table.Cell>
               <Table.Cell>
-                <Button size="sm" mr={2} onClick={() => handleEdit(product)}>
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  colorScheme="red"
-                  onClick={() => handleDelete(product._id)}
-                >
-                  Delete
-                </Button>
+                <HStack>
+                  <Tooltip showArrow content="Edit" >
+                    <CiEdit size="25px" onClick={() => handleEdit(product)}>
+                      Edit
+                    </CiEdit>
+                  </Tooltip>
+                  <Tooltip showArrow content="Delete">
+                    <LuTrash2
+                      size="25px"
+                      onClick={() => handleDelete(product._id)}
+                    >
+                      Delete
+                    </LuTrash2>
+                  </Tooltip>
+                </HStack>
               </Table.Cell>
             </Table.Row>
           ))}

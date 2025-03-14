@@ -10,7 +10,7 @@ import {
 } from "./ui/drawer";
 import { Avatar } from "./ui/avatar";
 import { useState } from "react";
-import { Button, HStack, VStack } from "@chakra-ui/react";
+import { Button, Flex, HStack, VStack } from "@chakra-ui/react";
 import { ColorModeButton } from "./ui/color-mode";
 import { useCustomColor } from "../hooks/useCustomColor";
 import { BsPersonAdd } from "react-icons/bs";
@@ -61,42 +61,44 @@ const UserProfile = () => {
             </HStack>
           </DrawerHeader>
           <DrawerBody>
-            <VStack gap={4} align="start">
-              <HStack>
-                <BsPersonAdd size={"30px"} color={textColor} />
-                <Button
-                  color={textColor}
-                  variant="ghost"
-                  onClick={handleSignUp}
-                  width="80%"
-                >
-                  Sign Up
-                </Button>
-              </HStack>
-              <HStack>
-                <LuLogIn size={"30px"} color={textColor} />
-                <Button
-                  color={textColor}
-                  variant="ghost"
-                  onClick={handleSignIn}
-                  width="80%"
-                >
-                  Sign In
-                </Button>
-              </HStack>
-
-              <HStack>
-                <LuLogOut size={"30px"} color={textColor} />
-                <Button
-                  color={textColor}
-                  variant="ghost"
-                  onClick={handleSignOut}
-                  width="80%"
-                >
-                  Sign Out
-                </Button>
-              </HStack>
-            </VStack>
+          <Flex direction="column" height="100%">
+        <VStack gap={4} align="start" flexGrow={1}>
+          <HStack>
+            <BsPersonAdd size={"30px"} color={textColor} />
+            <Button
+              color={textColor}
+              variant="ghost"
+              onClick={handleSignUp}
+              width="80%"
+            >
+              Sign Up
+            </Button>
+          </HStack>
+          <HStack>
+            <LuLogIn size={"30px"} color={textColor} />
+            <Button
+              color={textColor}
+              variant="ghost"
+              onClick={handleSignIn}
+              width="80%"
+            >
+              Sign In
+            </Button>
+          </HStack>
+        </VStack>
+        <HStack mt={4}>
+          {/* <LuLogOut size={"30px"} color={textColor} /> */}
+          <Button
+            color={textColor}
+            variant="ghost"
+            onClick={handleSignOut}
+            width="full"
+          >
+            <LuLogOut size={"30px"} color={textColor} />
+            Sign Out
+          </Button>
+        </HStack>
+      </Flex>
           </DrawerBody>
           <DrawerCloseTrigger />
         </DrawerContent>

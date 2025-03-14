@@ -5,14 +5,14 @@ import { CartContext } from "./CartContext";
 export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
-  const [items, setItems] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<CartItem[]>([]);
   const addToCart = (product: Product) => {
-    setItems((prevItems) => {
+    setCart((prevItems) => {
       const existing = prevItems.find((item) => item._id === product._id);
       if (existing) {
         return prevItems.map((item) =>
           item._id === product._id
-            ? { ...item, quantity: item.quantity + 1 }
+            ? { ...item, quantity: Math.min( item.quantity + 1, 99)}
             : item
         );
       }
@@ -21,18 +21,24 @@ export const CartProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const removeFromCart = (productId: string) => {
-    setItems((preItems) => preItems.filter((item) => item._id !== productId));
+    setCart((prevItems) => prevItems.filter((item) => item._id !== productId));
   };
   const updateQuantity = (productId: string, quantity: number) => {
-    setItems((prevItems) => {
+    setCart((prevItems) => {
       return prevItems.map((item) =>
-        item._id === productId ? { ...item, quantity } : item
+        item._id === productId ? { ...item, quantity: Math.max(1, Math.min(quantity, 99)) } : item
       );
     });
   };
+
+  const clearCart = () => setCart([]);
+
+  const getCartTotal = () => {
+    return cart.reduce((total, item) => total+item.price * item.quantity,0)
+  }
   return (
     <CartContext.Provider
-      value={{ items, addToCart, removeFromCart, updateQuantity }}
+      value={{cart, addToCart,clearCart, getCartTotal, removeFromCart, updateQuantity }}
     >
       {children}
     </CartContext.Provider>

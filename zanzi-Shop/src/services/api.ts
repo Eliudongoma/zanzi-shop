@@ -1,4 +1,5 @@
 import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
+import { getAuth } from "firebase/auth";
 
 interface ResponseType<T> {
   message: string;
@@ -11,10 +12,18 @@ const api = axios.create({
 
 export class ApiService<T> {
   constructor(private endpoint: string) {}
+
+  private async getToken(): Promise<string | null>{
+    const auth = getAuth();
+    const user = auth.currentUser;
+    if(!user) return null;
+    return await user.getIdToken();
+  }
   //Get ALL
   async getAll(signal?: AbortSignal): Promise<T[]> {
     try {
-      const config: AxiosRequestConfig = { signal};
+      const token = await this.getToken();
+      const config: AxiosRequestConfig = { signal, headers:token ? {Authorization: `Bearer ${token}`} : {}};
       const response: AxiosResponse<T[]> = await api.get(this.endpoint, config);
       return response.data;
     } catch (error) {
@@ -25,7 +34,8 @@ export class ApiService<T> {
   //Get By
   async getById(id: string,signal?: AbortSignal): Promise<T> {
     try {
-      const config: AxiosRequestConfig = { signal};
+      const token = await this.getToken();
+      const config: AxiosRequestConfig = { signal, headers:token ? {Authorization: `Bearer ${token}`} : {}};
       const response: AxiosResponse<T> = await api.get(
         `${this.endpoint}${id}`,
         config
@@ -39,8 +49,9 @@ export class ApiService<T> {
   //Create
   async create(data: T, signal?: AbortSignal): Promise<ResponseType<T>> {
     try {
-      const config: AxiosRequestConfig = { signal};
-      const response: AxiosResponse<ResponseType<T>> = await api.post(
+      const token = await this.getToken();
+      const config: AxiosRequestConfig = { signal, headers:token ? {Authorization: `Bearer ${token}`} : {}};
+            const response: AxiosResponse<ResponseType<T>> = await api.post(
         this.endpoint,
         data,
         config
@@ -58,7 +69,8 @@ export class ApiService<T> {
     signal?: AbortSignal
   ): Promise<ResponseType<T>> {
     try {
-      const config: AxiosRequestConfig = { signal};
+      const token = await this.getToken();
+      const config: AxiosRequestConfig = { signal, headers:token ? {Authorization: `Bearer ${token}`} : {}};
       const response: AxiosResponse<ResponseType<T>> = await api.put(
         `${this.endpoint}${id}`,
         data,
@@ -73,7 +85,8 @@ export class ApiService<T> {
   //Delete
   async delete(id: string, signal?: AbortSignal): Promise<ResponseType<T>> {
     try {
-      const config: AxiosRequestConfig = { signal};
+      const token = await this.getToken();
+      const config: AxiosRequestConfig = { signal, headers:token ? {Authorization: `Bearer ${token}`} : {}};
       const response = await api.delete(`${this.endpoint}${id}`, config);
       return response.data
     } catch (error) {

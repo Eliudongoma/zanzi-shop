@@ -1,4 +1,4 @@
-import { Box, Button, Table, useDisclosure } from "@chakra-ui/react";
+import { Box, Button, HStack, Table, useDisclosure } from "@chakra-ui/react";
 import {
   DialogBody,
   DialogCloseTrigger,
@@ -6,30 +6,58 @@ import {
   DialogHeader,
   DialogRoot,
 } from "../../../components/ui/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import useFetchUsers from "../../../hooks/FetchData/useFetchUsers";
 import { User } from "../../../types";
 import { userService } from "../../../services/apiServices";
 import UserForm from "./UserForm";
 import AppError from "../../../components/AppError";
 import Loading from "../../../components/Loading";
+import { CiEdit } from "react-icons/ci";
+import { LuTrash2 } from "react-icons/lu";
+import { Tooltip } from "../../../components/ui/tooltip";
+import { getAuth, onAuthStateChanged } from "firebase/auth";
+import toast from "react-hot-toast";
+import axios from "axios";
 
 const UserManagement = () => {
   const { data: users, loading, fetchData, error, attempts } = useFetchUsers();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [isInitialFetchDone, setIsInitialFetchDone] = useState(false);
   const handleEdit = (user: User) => {
+    // console.log("Editing")
     setEditingUser(user);
     onOpen();
   };
   const handleDelete = async (id: string) => {
+    // console.log(id)
     try {
-      await userService.delete(id);
+      const response = await userService.delete(id);
+      toast.success(response.message)
       fetchData();
     } catch (error) {
-      console.log("Error deleting user", error);
+      if (axios.isAxiosError(error)) {
+        toast.error(error.response?.data?.message || "An error occurred");
+      } else {
+        toast.error("Something went wrong");
+      }
     }
   };
+
+  useEffect(() => {
+    const auth = getAuth();
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      if (user && !isInitialFetchDone) {
+        console.log("Fetching users due to auth state change...");
+        fetchData().then(() => {
+          setIsInitialFetchDone(true); // Mark fetch as done
+        });
+      }
+    });
+    return () => unsubscribe();
+  }, [fetchData, isInitialFetchDone]);
+  
   if (loading) {
       return <Loading message={`Loading users... (Attempt ${attempts + 1} of 3)`} />;
     }
@@ -71,16 +99,21 @@ const UserManagement = () => {
               <Table.Cell>{user.phoneNumber}</Table.Cell>
               <Table.Cell>{user.role}</Table.Cell>
               <Table.Cell>
-                <Button size="sm" mr={2} onClick={() => handleEdit(user)}>
-                  Edit
-                </Button>
-                <Button
-                  size="sm"
-                  colorScheme="red"
-                  onClick={() => handleDelete(user.firebaseUid)}
-                >
-                  Delete
-                </Button>
+                <HStack>
+                  <Tooltip showArrow content="Edit">
+                    <CiEdit size="25px" onClick={() => handleEdit(user)}>
+                      Edit
+                    </CiEdit>
+                  </Tooltip>
+                  <Tooltip showArrow content="Delete">
+                    <LuTrash2
+                      size="25px"
+                      onClick={() => handleDelete(user._id)}
+                    >
+                      Delete
+                    </LuTrash2>
+                  </Tooltip>
+                </HStack>
               </Table.Cell>
             </Table.Row>
           ))}
@@ -110,6 +143,7 @@ const UserManagement = () => {
               onClose={onClose}
               editingUser={editingUser}
             />
+            {/* <Register/> */}
           </DialogBody>
         </DialogContent>
       </DialogRoot>

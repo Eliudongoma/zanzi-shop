@@ -1,6 +1,7 @@
 import { z } from "zod";
 
 const RegisterSchema = z.object({
+  _id:z.string(),
   firebaseUid:z.string(),
   firstName: z.string().min(1, "First Name is required"),
   lastName: z.string().min(1, "Last Name is required"),

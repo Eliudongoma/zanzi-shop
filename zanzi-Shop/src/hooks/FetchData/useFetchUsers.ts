@@ -1,9 +1,13 @@
+import { useCallback } from "react";
 import { userService } from "../../services/apiServices";
 import { User } from "../../types";
 import useFetch from "./useFetch";
 
 const useFetchUsers = () => {
-  return useFetch<User[]>( (signal) => userService.getAll(signal), [], true,3,1000)
+  const fetchUsers = useCallback(async (signal: AbortSignal) => {
+    return await userService.getAll(signal);
+  }, []);
+  return useFetch<User[]>(fetchUsers, [], false,3,1000)
 };
 
 export default useFetchUsers;
