@@ -13,73 +13,70 @@ const useFetch = <T>(
   const [data, setData] = useState<T>(initialData);
   const [loading, setLoading] = useState<boolean>(autoFetch);
   const [error, setError] = useState<Error | null>(null);
-  const [hasFetched, setHasFetched] = useState<boolean>(false);
-  const [attempts, setAttempts] = useState<number>(0);
+  const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
+
+  useEffect(()=> {
+    const updateOnlineStatus = () => setIsOffline(!navigator.onLine);
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
+    };
+  }, []);
 
   const fetchData = useCallback(async () => {
     const controller = new AbortController();
-    let localAttempts = 0;
-    let result: T | undefined;
-    let fetchError: Error | null = null;
 
     setLoading(true);
     setError(null);
 
+    if (isOffline) {
+      setError(new Error("You’re offline. Please check your internet connection."));
+      setLoading(false);
+      controller.abort();
+      return;
+    }
+    let localAttempts = 0;
     while (localAttempts < maxRetries) {
       try {
-        result = await fetchFn(controller.signal);
+        const result = await fetchFn(controller.signal);
         if (!controller.signal.aborted) {
           setData(result);
-          setHasFetched(true);
-          setAttempts(0); // Reset attempts on success
           setLoading(false);
-          return; // Exit on success
+          return;
         }
       } catch (err) {
-        if (!controller.signal.aborted) {
-          fetchError = err instanceof Error ? err : new Error("Unknown error occurred");
-          if (axios.isAxiosError(err) && err.response?.status === 401) {
-            // Stop retries on 401 Unauthorized
-            setError(new Error("Unauthorized: Please log in"));
-            setLoading(false);
-            return;
-          }
-          localAttempts++;
-          setAttempts(localAttempts);
+        if (controller.signal.aborted) return;
 
-          if (localAttempts < maxRetries) {
-            await new Promise((resolve) => setTimeout(resolve, retryDelay));
-          }
+        if (axios.isAxiosError(err) && err.response?.status === 401) {
+          setError(new Error("Unauthorized: Please log in"));
+          setLoading(false);
+          return;
+        }
+
+        localAttempts++;
+        if (localAttempts < maxRetries) {
+          await new Promise((resolve) => setTimeout(resolve, retryDelay));
         }
       }
     }
 
     if (!controller.signal.aborted) {
-      if (fetchError) {
-        setError(new Error(`Network Error: Max retries (${maxRetries}) exceeded`));
-        console.error(`Max retries (${maxRetries}) reached. Last error:`, fetchError);
-      }
+      setError(new Error(`Network Error: Max retries (${maxRetries}) exceeded`));
       setLoading(false);
     }
-
-    return () => controller.abort();
-  }, [fetchFn, maxRetries, retryDelay]); 
+  }, [fetchFn, maxRetries, retryDelay, isOffline]);
 
   useEffect(() => {
-    if (!autoFetch || hasFetched) return;
+    if (!autoFetch) return;
 
-    let abortFn: (() => void) | undefined;
-    const fetchPromise = fetchData();
-    fetchPromise.then((cleanup) => {
-      abortFn = cleanup;
-    });
+    fetchData();
+  }, [fetchData, autoFetch]);
 
-    return () => {
-      if (abortFn) abortFn();
-    };
-  }, [fetchData, autoFetch, hasFetched]);
-
-  return { data, loading, error, fetchData, attempts };
+  return { data, loading, error, fetchData, isOffline};
 };
 
 export default useFetch;

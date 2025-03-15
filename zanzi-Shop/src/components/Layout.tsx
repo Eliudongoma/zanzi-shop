@@ -1,6 +1,4 @@
 import { Grid, GridItem, Heading } from '@chakra-ui/react'
-import NavBar from './NavBar'
-import { useState } from 'react';
 import { useCustomColor } from '../hooks/useCustomColor';
 import { Outlet } from 'react-router-dom';
 
@@ -9,9 +7,6 @@ export interface ProductQuery {
 }
 
 const Layout = () => {
-  const [productQuery, setProductQuery] = useState<ProductQuery>(
-    {} as ProductQuery
-  );
   const { textColor, asideBg, mainBg}= useCustomColor();
   return (
     <Grid
@@ -21,11 +16,11 @@ const Layout = () => {
             lg: "200px 1fr",
           }}
         >
-          <GridItem area="nav" color={textColor} p={5} >
+          {/* <GridItem area="nav" color={textColor} p={5} >
             <NavBar
               onSearch={(search) => setProductQuery({ ...productQuery, search })}
             />
-          </GridItem>
+          </GridItem> */}
           <GridItem
             area="aside"
             px={5}

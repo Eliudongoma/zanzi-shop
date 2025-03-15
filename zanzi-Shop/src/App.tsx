@@ -1,7 +1,7 @@
 import { Route, BrowserRouter as Router, Routes } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import useUserRole from "./hooks/useUserRole";
-import Layout from "./components/Layout";
+import Layout, { ProductQuery } from "./components/Layout";
 import Login from "./pages/Authentication/Login";
 import ProductGrid from "./components/Product/ProductGrid";
 import Register from "./pages/Authentication/Register";
@@ -10,13 +10,17 @@ import ProtectedRoute from "./components/ProtectedRoute";
 import Loading from "./components/Loading";
 import AppError from "./components/AppError";
 import { NotFound } from "./pages/NotFound";
-import { Cart } from "./pages/CartPage";
+import  Cart  from "./pages/CartPage";
+import NavBar from "./components/NavBar";
+import { useState } from "react";
+
 
 // Wrapper to handle redirects based on role
 const RoleBasedRedirect = ({ children }: { children: React.ReactNode }) => {
-  const { user, error, isOffline } = useUserRole();
+  const { error, isOffline, loading } = useUserRole();
+  
 
-  if (user === undefined) {
+  if (loading) {
     return <Loading message="Initializing authentication..." />;
   }
 
@@ -34,9 +38,15 @@ const RoleBasedRedirect = ({ children }: { children: React.ReactNode }) => {
 };
 
 function App() {
+  const [productQuery, setProductQuery] = useState<ProductQuery>(
+    {} as ProductQuery
+  );
   return (
     <Router>
       <Toaster position="top-right" reverseOrder={false} />
+      <NavBar
+              onSearch={(search) => setProductQuery({ ...productQuery, search })}
+            />
       <RoleBasedRedirect>
         <Routes>
           <Route

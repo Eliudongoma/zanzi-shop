@@ -16,15 +16,14 @@ import AppError from "../../../components/AppError";
 import toast from "react-hot-toast";
 import axios from "axios";
 import { CiEdit } from "react-icons/ci";
-// import { useCustomColor } from "../../../hooks/useCustomColor";
 import { Tooltip } from "../../../components/ui/tooltip"
 import { LuTrash2 } from "react-icons/lu";
 
 const ProductManagement = () => {
-  const { data: products, loading, fetchData, error, attempts } = useFetchProducts();
+  const { data: products, loading, fetchData, error } = useFetchProducts();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  // const {buttonBg} = useCustomColor()
+  
   const handleEdit = (product: Product) => {
     setEditingProduct(product);
     onOpen();
@@ -43,7 +42,7 @@ const ProductManagement = () => {
     }
   };
   if (loading) {
-    return <Loading message={`Loading products... (Attempt ${attempts + 1} of 3)`} />;
+    return <Loading message={'Loading products...'} />;
   }
 
   if (error) {

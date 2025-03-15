@@ -21,7 +21,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 
 const UserManagement = () => {
-  const { data: users, loading, fetchData, error, attempts } = useFetchUsers();
+  const { data: users, loading, fetchData, error } = useFetchUsers();
   const { open, onOpen, onClose } = useDisclosure();
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isInitialFetchDone, setIsInitialFetchDone] = useState(false);
@@ -59,7 +59,7 @@ const UserManagement = () => {
   }, [fetchData, isInitialFetchDone]);
   
   if (loading) {
-      return <Loading message={`Loading users... (Attempt ${attempts + 1} of 3)`} />;
+      return <Loading message={`Loading users...)`} />;
     }
   
     if (error) {

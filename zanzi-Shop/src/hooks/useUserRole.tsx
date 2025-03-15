@@ -1,83 +1,73 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuthState } from "react-firebase-hooks/auth";
 import { auth, db } from "../config/firebaseConfig";
-import { doc, onSnapshot } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 const useUserRole = () => {
-  const [user] = useAuthState(auth);
+  const [authState, loading] = useAuthState(auth);
   const [role, setRole] = useState<string | null>(null);
   const [error, setError] = useState<Error | null>(null);
-  const [isOffline, setIsOffline] = useState<boolean>(false);
-  const timeoutIdRef = useRef<NodeJS.Timeout | null>(null);
-  const hasFetchedRole = useRef(false); // Prevent overrides
+  const [isOffline, setIsOffline] = useState<boolean>(!navigator.onLine);
+  const [customError, setCustomError] = useState<Error | null>(null);
+
+  // Listen for online/offline changes
+  useEffect(() => {
+    const updateOnlineStatus = () => setIsOffline(!navigator.onLine);
+
+    window.addEventListener('online', updateOnlineStatus);
+    window.addEventListener('offline', updateOnlineStatus);
+
+    return () => {
+      window.removeEventListener('online', updateOnlineStatus);
+      window.removeEventListener('offline', updateOnlineStatus);
+    };
+  }, []);
 
   useEffect(() => {
-    let unsubscribe: () => void;
+    let mounted = true;
 
-    const cleanup = () => {
-      if (unsubscribe) unsubscribe();
-      if (timeoutIdRef.current) {
-        clearTimeout(timeoutIdRef.current);
-        timeoutIdRef.current = null;
+    if (authState) {
+      if (!navigator.onLine) {
+        if(mounted){
+        setError(new Error("You’re offline. Please check your internet connection."));
+        setIsOffline(true);
+        setRole("user"); // Default role when offline
+        }
+        return;
       }
-    };
 
-    if (user) {
-      hasFetchedRole.current = false; // Reset for new user
-      const userDocRef = doc(db, "users", user.uid);
 
-      timeoutIdRef.current = setTimeout(() => {
-        if (!hasFetchedRole.current) {
-          setError(new Error("Unable to connect to the server"));
-          setIsOffline(true);
-          setRole("user");
-          hasFetchedRole.current = true;
-        }
-      }, 5000);
-
-      unsubscribe = onSnapshot(
-        userDocRef,
-        (userDoc) => {
-          if (timeoutIdRef.current) {
-            clearTimeout(timeoutIdRef.current);
-            timeoutIdRef.current = null;
+      const fetchRole = async () => {
+        try {
+          const userDocRef = doc(db, "users", authState.uid);
+          const userDoc = await getDoc(userDocRef);
+          if (mounted) {
+            setRole(userDoc.exists() ? userDoc.data().role || "user" : "user");
+            setCustomError(null);
+            setIsOffline(false);
           }
-          if (userDoc.exists() && !hasFetchedRole.current) {
-            const fetchedRole = userDoc.data().role;
-            setRole(fetchedRole || "user");
-            hasFetchedRole.current = true;
-          } else if (!hasFetchedRole.current) {
+        } catch (err) {
+          if (mounted) {
+            setCustomError(err as Error);
             setRole("user");
-            hasFetchedRole.current = true;
-          }
-          setError(null);
-          setIsOffline(false);
-        },
-        (err) => {
-          if (timeoutIdRef.current) {
-            clearTimeout(timeoutIdRef.current);
-            timeoutIdRef.current = null;
-          }
-          if (!hasFetchedRole.current) {
-            setError(err);
-            setRole("user");
-            if (err.message.includes("network") || err.code === "unavailable") {
-              setIsOffline(true);
-            }
-            hasFetchedRole.current = true;
           }
         }
-      );
-    } else {
-      setRole(null);
-      setError(null);
-      setIsOffline(false);
-      hasFetchedRole.current = false;
+      };
+
+      fetchRole();
+    } else if (!loading) {
+      // User is null (not logged in) and loading is complete
+      if (mounted) {
+        setRole(null);
+        setCustomError(null);
+        setIsOffline(false);
+      }
     }
 
-    return cleanup;
-  }, [user]);
+    return () => {
+      mounted = false;
+    };
+  }, [authState, loading]);
 
-  return { user, role, error, isOffline };
-};
+  return { user: authState, role, error: customError || error, isOffline, loading };};
 export default useUserRole;

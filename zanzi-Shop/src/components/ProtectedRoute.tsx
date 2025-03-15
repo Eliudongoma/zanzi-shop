@@ -6,10 +6,11 @@ interface RouteType {
   requiredRole?: string;
   children?: React.ReactNode;
 }
-const EXEMPT_PATHS = ['/login', '/register'];
+const EXEMPT_PATHS = ['/login', '/register', '/products', '/cart'];
 const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
-  const { role, user } = useUserRole();
+  const { role, user, loading} = useUserRole();
   const location = useLocation();
+  if(loading) return <Spinner/>
 
   if (user && role === null) return <Spinner />;
   const getRedirectPath = () => {
@@ -18,7 +19,7 @@ const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
     const exemptPaths = EXEMPT_PATHS.map(normalizePath);
 
     if (!user) {
-      if (exemptPaths.includes(location.pathname)) return currentPath;
+      if (exemptPaths.includes(currentPath)) return currentPath;
       return "/products";
     }
 
