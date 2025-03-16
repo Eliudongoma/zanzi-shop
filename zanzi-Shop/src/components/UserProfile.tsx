@@ -26,9 +26,11 @@ const UserProfile = () => {
 
   const handleSignUp = () => {
     navigate("/register");
+    setOpen(false)
   };
   const handleSignIn = () => {
     navigate("/login");
+    setOpen(false)
   };
   const handleSignOut = async () => {
     try {

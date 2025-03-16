@@ -6,13 +6,13 @@ interface RouteType {
   requiredRole?: string;
   children?: React.ReactNode;
 }
-const EXEMPT_PATHS = ['/login', '/register', '/products', '/cart'];
+const EXEMPT_PATHS = ['/login', '/register', '/cart'];
 const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
   const { role, user, loading} = useUserRole();
   const location = useLocation();
-  if(loading) return <Spinner/>
 
-  if (user && role === null) return <Spinner />;
+  if ((user && role === null) || loading) return <Spinner />;
+
   const getRedirectPath = () => {
     const normalizePath = (path: string) => path.replace(/\/+$/, "");
     const currentPath = normalizePath(location.pathname);
@@ -22,7 +22,6 @@ const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
       if (exemptPaths.includes(currentPath)) return currentPath;
       return "/products";
     }
-
     // Logged in: redirect based on role
     const defaultPath = role === "admin" ? "/admin" : "/products";
 
@@ -30,12 +29,10 @@ const ProtectedRoute = ({ requiredRole, children }: RouteType) => {
     if (requiredRole && role !== requiredRole) {
       return defaultPath;
     }
-
     // If no requiredRole or role matches, stay on current path unless it’s exempt
     if (currentPath !== defaultPath && !exemptPaths.includes(currentPath)) {
       return defaultPath;
     }
-
     return currentPath; // Stay on current path if allowed
   };
 

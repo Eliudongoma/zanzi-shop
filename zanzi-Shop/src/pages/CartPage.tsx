@@ -16,6 +16,9 @@ import { useCart } from "../hooks/useCart";
 import { useNavigate } from "react-router-dom";
 import { useCustomColor } from "../hooks/useCustomColor";
 import { BsCart4 } from "react-icons/bs";
+import { useEffect, useState } from "react";
+import DeleteWarning from "../components/DeleteWarning";
+import { CartItem } from "../types";
 
 const Cart = () => {
   const { cart, updateQuantity, removeFromCart, clearCart, getCartTotal } =
@@ -25,10 +28,42 @@ const Cart = () => {
   const [isLargerThanMd] = useMediaQuery(["(min-width: 768px)"], {
     ssr: false,
   });
+  // State for the delete warning dialog
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<CartItem | null>(null);
+
+  // Open the delete warning for a specific item
+  const handleDeleteClick = (item?: CartItem) => {
+    if (item) setItemToDelete(item);
+    else setItemToDelete(null);
+    setIsDeleteOpen(true);
+  };
+
+  // Confirm the deletion
+  const handleConfirmDelete = () => {
+    if (itemToDelete) {
+      removeFromCart(itemToDelete._id);
+    }
+    if (!itemToDelete) {
+      clearCart();
+    }
+    setIsDeleteOpen(false);
+    setItemToDelete(null);
+  };
+
+  // Close the dialog without deleting
+  const handleCloseDelete = () => {
+    setIsDeleteOpen(false);
+    setItemToDelete(null);
+  };
 
   const handleQuantityChange = (id: string, value: number) => {
     if (value >= 1) updateQuantity(id, value);
   };
+  useEffect(() => {
+    console.log("Updated itemToDelete:", itemToDelete);
+    console.log("Updated isDeleteOpen:", isDeleteOpen);
+  }, [itemToDelete, isDeleteOpen]);
 
   return (
     <Box maxW="container.xl" mx="auto" p={4} bg={bgColor} minHeight="80vh">
@@ -87,7 +122,12 @@ const Cart = () => {
                 boxShadow="sm"
                 _hover={{ boxShadow: "md" }}
               >
-                <Flex align={isLargerThanMd ? "center": "start"} justify="space-between" gap={4} direction={isLargerThanMd ? "row" : "column"}>
+                <Flex
+                  align={isLargerThanMd ? "center" : "start"}
+                  justify="space-between"
+                  gap={4}
+                  direction={isLargerThanMd ? "row" : "column"}
+                >
                   <HStack gap={4} flex={1}>
                     <Image
                       src={item.imageUrl}
@@ -104,18 +144,8 @@ const Cart = () => {
                         {item.stock === 0 ? "Out of stock" : "In Stock"}{" "}
                         <Badge color={textColor}>ZANZI</Badge>
                       </Text>
-                      {/* {item.discount && (
-                        <Text color="red.500" fontSize="sm">
-                          -{item.discount}%
-                        </Text>
-                      )} */}
                       <Text fontSize="md" color={textColor}>
                         KSh {item.price.toFixed(2)}
-                        {/* {item.originalPrice && (
-                          <Text as="s" color="gray.500" ml={2}>
-                            KSh {item.originalPrice.toFixed(2)}
-                          </Text>
-                        )} */}
                       </Text>
                     </Box>
                   </HStack>
@@ -129,7 +159,7 @@ const Cart = () => {
                       size="sm"
                       colorScheme="red"
                       variant="outline"
-                      onClick={() => removeFromCart(item._id)}
+                      onClick={() => handleDeleteClick(item)}
                     >
                       Remove
                     </Button>
@@ -171,11 +201,19 @@ const Cart = () => {
                 </Flex>
               </Box>
             ))}
+            {isDeleteOpen && (
+              <DeleteWarning
+                isOpen={isDeleteOpen}
+                onClose={handleCloseDelete}
+                onConfirm={handleConfirmDelete}
+                itemName={itemToDelete?.name}
+              />
+            )}
             <Button
               color={buttonText}
               bg={buttonBg}
               size="md"
-              onClick={clearCart}
+              onClick={() => handleDeleteClick()}
               mt={4}
             >
               Clear Cart

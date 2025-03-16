@@ -18,7 +18,6 @@ import { useState } from "react";
 // Wrapper to handle redirects based on role
 const RoleBasedRedirect = ({ children }: { children: React.ReactNode }) => {
   const { error, isOffline, loading } = useUserRole();
-  
 
   if (loading) {
     return <Loading message="Initializing authentication..." />;

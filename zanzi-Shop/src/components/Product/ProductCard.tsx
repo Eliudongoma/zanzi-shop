@@ -12,11 +12,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const { textColor } = useCustomColor();
   
   return (
-    <Card.Root>
-      <Image src={getCroppedImage(product.imageUrl)} />
+    <Card.Root maxW={"sm"}>
+      <Image 
+      src={getCroppedImage(product.imageUrl)}
+      objectFit="cover" 
+        maxH="300px"  
+        loading="lazy"
+        maxW="400px" 
+        alt={product.name}
+       />
       <Card.Body gap="2">
         <Card.Title color={textColor}>{product.name}</Card.Title>
-        <Card.Description>{product.description}</Card.Description>
         <Text
           textStyle="2xl"
           fontWeight="medium"
