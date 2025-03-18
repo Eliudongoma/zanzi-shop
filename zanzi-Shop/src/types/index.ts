@@ -24,3 +24,21 @@ export interface User {
   registeredAt: Date
   role: 'user' | 'admin';
 }
+
+export interface Order {
+  _id: string;
+  userId: string;
+  items: CartItem[];
+  total: number;
+  status: 'pending' | 'completed';
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface ShippingDetails{
+  fullName: string;
+  email: string;
+  address: string;
+  city: string;
+  phoneNumber: string;
+  paymentMethod: string;
+}

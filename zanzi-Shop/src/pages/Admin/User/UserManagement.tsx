@@ -26,7 +26,7 @@ const UserManagement = () => {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isInitialFetchDone, setIsInitialFetchDone] = useState(false);
   const handleEdit = (user: User) => {
-    // console.log("Editing")
+    console.log("Editing user:", user);
     setEditingUser(user);
     onOpen();
   };

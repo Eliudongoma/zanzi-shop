@@ -15,7 +15,7 @@ import toast from "react-hot-toast";
 import axios from "axios";
 import FormField from "../../../components/FormField";
 import { useCustomColor } from "../../../hooks/useCustomColor";
-import { useEffect, useState } from "react";
+import {  useEffect, useState } from "react";
 import SelectItems from "../../../components/SelectItems";
 
 interface UserFormProps {
@@ -59,19 +59,21 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
   useEffect(() => {
     if (editingUser) {
       reset(editingUser);
+      console.log("Editing user:", editingUser);
     }
   }, [editingUser, reset]);
   const onsubmit = async (data: User) => {
+    console.log("Form data submitted:", data);
+    console.log("Editing user:", editingUser);
     // console.log(data)
     console.log("Loading state false");
     setIsLoading(true);
     try {
       if (editingUser) {
-        const response = await userService.update(data.firebaseUid, data);
+        const response = await userService.update(data._id, data);
         toast.success(response.message);
       } else {
-        const newUser = { ...data };
-        const response = await userService.create(newUser);
+        const response = await userService.create(data);
         toast.success(response.message);
       }
       onSuccess();
@@ -88,8 +90,12 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
     }
   };
 
+  const handleFormSubmit = (data: User) => {
+    console.log("Form submit triggered with data:", data);
+    onsubmit(data);
+  };
   return (
-    <form onSubmit={handleSubmit(onsubmit)} noValidate>
+    <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
       <VStack gap={3}>
         <Fieldset.Root>
           <HStack>
@@ -115,14 +121,14 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
               register={register}
               error={errors.email}
             />
-            <FormField<User>
+           {!editingUser && <FormField<User>
               label="Password"
               name="password"
               register={register}
               type="password"
               error={errors.password}
               togglePassword={true}
-            />
+            />}
           </HStack>
           <HStack>
             <FormField<User>
@@ -149,22 +155,13 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
           </HStack>
         </Fieldset.Root>
         <Button
-          mt={4}
+          type="submit"
           bg={buttonBg}
           color={buttonText}
-          type="submit"
-          width="full"
           disabled={isLoading}
-          // onClick={() => console.log(isLoading)}
-          // _disabled={{ opacity: 0.4, cursor: "not-allowed" }}
+          width={"full"}
         >
-          {isLoading ? (
-            <Spinner />
-          ) : editingUser ? (
-            "Update User"
-          ) : (
-            "Create User"
-          )}
+          {isLoading ? <Spinner /> : editingUser ? "Update User" : "Create User"}
         </Button>
       </VStack>
     </form>

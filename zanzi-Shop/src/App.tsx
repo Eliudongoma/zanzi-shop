@@ -13,6 +13,7 @@ import { NotFound } from "./pages/NotFound";
 import  Cart  from "./pages/CartPage";
 import NavBar from "./components/NavBar";
 import { useState } from "react";
+import CheckoutPage from "./pages/Checkout";
 
 
 // Wrapper to handle redirects based on role
@@ -63,6 +64,7 @@ function App() {
             </Route>
           </Route>
           <Route path="/cart" element={<Cart />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
           {/* Moved outside ProtectedRoute */}
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
