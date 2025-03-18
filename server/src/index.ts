@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import productRoutes from "./routes/products.js";
 import userRoutes from "./routes/users.js";
+import orderRoutes from "./routes/orders.js";
 import authRoutes from "./routes/auth.js";
 import config from "./config.js";
 import { connectDB } from "./data/db.js";
@@ -22,6 +23,7 @@ app.get("/", (req, res) => {
 app.use("/api", authRoutes);
 app.use("/api", productRoutes);
 app.use("/api", userRoutes);
+app.use("/api", orderRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
