@@ -26,7 +26,6 @@ const UserManagement = () => {
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [isInitialFetchDone, setIsInitialFetchDone] = useState(false);
   const handleEdit = (user: User) => {
-    console.log("Editing user:", user);
     setEditingUser(user);
     onOpen();
   };
@@ -92,7 +91,7 @@ const UserManagement = () => {
         </Table.Header>
         <Table.Body>
           {users.map((user, index) => (
-            <Table.Row key={user.firebaseUid || index}>
+            <Table.Row key={user.firebaseUID || index}>
               <Table.Cell>{user.firstName}</Table.Cell>
               <Table.Cell>{user.lastName}</Table.Cell>
               <Table.Cell>{user.email}</Table.Cell>
@@ -108,7 +107,7 @@ const UserManagement = () => {
                   <Tooltip showArrow content="Delete">
                     <LuTrash2
                       size="25px"
-                      onClick={() => handleDelete(user._id)}
+                      onClick={() => handleDelete(user._id ? user._id : "")}
                     >
                       Delete
                     </LuTrash2>

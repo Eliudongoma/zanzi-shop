@@ -40,7 +40,7 @@ const createCRUDController = <T>(
       await item.save();
       res.status(200).json({
         message: `${itemString} Added Sucessfully!`,
-        item: item,
+        data: item.toJSON(),
       });
     } catch (error) {
       console.log(error);

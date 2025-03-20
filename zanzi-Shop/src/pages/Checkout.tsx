@@ -14,12 +14,15 @@ import {
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useForm } from "react-hook-form";
-import { ShippingDetails } from "../types";
 import { zodResolver } from "@hookform/resolvers/zod";
-import ShippingSchema from "../Schemas/ShippingSchema"; // Typo: Should be "ShippingSchema"
+import { OrderSchema } from "../Schemas/OrderSchema"; // Updated import
 import { useCustomColor } from "../hooks/useCustomColor";
+import { useCart } from "../hooks/useCart";
 import SelectItems from "../components/SelectItems";
 import FormField from "../components/FormField";
+import { Order } from "../types"; // Updated import
+import axios from "axios";
+import { orderService } from "../services/apiServices";
 
 const CheckoutPage: React.FC = () => {
   const {
@@ -28,157 +31,228 @@ const CheckoutPage: React.FC = () => {
     watch,
     setValue,
     register,
-  } = useForm<ShippingDetails>({
-    resolver: zodResolver(ShippingSchema),
+  } = useForm<Order>({
+    resolver: zodResolver(OrderSchema),
     defaultValues: {
-      fullName: "",
-      email: "",
-      address: "",
-      city: "",
-      phoneNumber: "",
-      paymentMethod: "",
+      shippingDetails: {
+        fullName: "",
+        email: "",
+        address: "",
+        city: "",
+        phoneNumber: "",
+        paymentMethod: "cash", // Default value
+      },
+      cartItems: [], // Will be populated dynamically
+      total: 0, // Will be calculated
+      status: "pending", // Default value
+      userId: undefined,
+      createdAt: new Date(),
     },
   });
+
   const navigate = useNavigate();
   const { buttonText, buttonBg, textColor, bgColor } = useCustomColor();
+  const { cart, getCartTotal, clearCart } = useCart();
   const paymentMethods = createListCollection({
     items: [
       { value: "mpesa", label: "Mpesa" },
       { value: "cash", label: "Cash" },
     ],
   });
-  const [isLargerThanMd] = useMediaQuery(["(min-width: 768px)"], { ssr: false });
+  const [isLargerThanMd] = useMediaQuery(["(min-width: 768px)"], {
+    ssr: false,
+  });
+  const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleCheckout = (data: ShippingDetails) => {
-    toast.success("Order placed successfully!", { duration: 3000 });
-    console.log("Shipping Details:", data); // For debugging
-    navigate("/");
+  console.log("Form errors:", errors);
+  const subtotal = getCartTotal();
+  const shipping = 5; // Static for now
+  const total = subtotal + shipping;
+  setValue('total', total);
+
+//   console.log('Total value type:', typeof total);
+// console.log('Total value:', total);
+  const handleCheckout = async (data: Order) => {
+    console.log("Checking out");
+    setIsLoading(true);
+    try {
+      const orderData: Order = {
+        ...data,
+        cartItems: cart, // Use cart from useCart
+        total, // Calculated total
+        status: "pending", // Explicitly set to pending
+        createdAt: new Date(), // Current timestamp
+      };
+
+      const response = await orderService.create(orderData);
+      toast.success(response.message || "Order placed successfully!", {
+        duration: 3000,
+      });
+      clearCart();
+      navigate("/order-confirmation", { state: { order: response.data } });
+    } catch (error) {
+      if (axios.isAxiosError(error)) {
+        toast.error(
+          error.response?.data?.message ||
+            "Failed to place order. Please try again."
+        );
+      } else {
+        toast.error("Something went wrong");
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Box
-      maxW="container.lg" // Slightly larger container for better gap
+      maxW="container.lg"
       mx="auto"
       color={textColor}
       bg={bgColor}
-      p={{ base: 4, md: 6 }} // Responsive padding
-      boxShadow="md" // Softer shadow for a modern look
-      borderRadius="lg" // Larger radius for consistency
+      p={{ base: 4, md: 6 }}
+      boxShadow="md"
+      borderRadius="lg"
     >
       <Heading mb={6} textAlign="center" size="lg" color={textColor}>
         Checkout
       </Heading>
-      <form onSubmit={handleSubmit(handleCheckout)}>
-        <Flex
-          direction={isLargerThanMd ? "row" : "column"}
-          gap={6} // Increased gap for better separation
-          justify="space-between"
-        >
-          {/* Shipping & Payment Details */}
-          <VStack
-            flex={2}
+      {cart.length === 0 ? (
+        <Text textAlign="center">
+          Your cart is empty. Add items to proceed.
+        </Text>
+      ) : (
+        <form onSubmit={handleSubmit(handleCheckout)}>
+          <Flex
+            direction={isLargerThanMd ? "row" : "column"}
             gap={6}
-            align="stretch"
-            p={4}
-            bg={bgColor}
-            borderRadius="md"
-            boxShadow="sm"
+            justify="space-between"
           >
-            <Heading size="md" color={textColor}>
-              Shipping Details
-            </Heading>
-            <Fieldset.Root>
-              <VStack gap={4}>
-                <FormField
-                  label="Full Name"
-                  name="fullName"
-                  register={register}
-                  error={errors.fullName}
-                />
-                <FormField
-                  label="Email"
-                  name="email"
-                  register={register}
-                  error={errors.email}
-                />
-                <FormField
-                  label="Address"
-                  name="address"
-                  register={register}
-                  error={errors.address}
-                />
-                <FormField
-                  label="City"
-                  name="city"
-                  register={register}
-                  error={errors.city}
-                />
-                <FormField
-                  label="Phone Number"
-                  name="phoneNumber"
-                  register={register}
-                  error={errors.phoneNumber}
-                />
-              </VStack>
-            </Fieldset.Root>
-
-            <Heading size="md" color={textColor} mt={4}>
-              Payment Method
-            </Heading>
-            <Fieldset.Root>
-              <FormField
-                name="paymentMethod"
-                register={register}
-                error={errors.paymentMethod}
-                component="custom"
-              >
-                <SelectItems
-                  collections={paymentMethods}
-                  value={watch("paymentMethod") ? [watch("paymentMethod")] : []}
-                  onchange={(value) => setValue("paymentMethod", value[0] || "")}
-                />
-              </FormField>
-            </Fieldset.Root>
-          </VStack>
-
-          {/* Order Summary */}
-          <VStack
-            flex={1}
-            gap={4}
-            align="stretch"
-            p={4}
-            bg={bgColor}
-            borderRadius="md"
-            boxShadow="sm"
-          >
-            <Heading size="md" color={textColor}>
-              Order Summary
-            </Heading>
-            <HStack justify="space-between">
-              <Text>Subtotal:</Text>
-              <Text fontWeight="semibold">$100</Text>
-            </HStack>
-            <HStack justify="space-between">
-              <Text>Shipping:</Text>
-              <Text fontWeight="semibold">$5</Text>
-            </HStack>
-            <HStack justify="space-between" fontWeight="bold">
-              <Text>Total:</Text>
-              <Text>$105</Text>
-            </HStack>
-            <Button
-              color={buttonText}
-              bg={buttonBg}
-              type="submit"
-              width="full"
-              mt={4}
-              _hover={{ opacity: 0.9 }} // Subtle hover effect
+            <VStack
+              flex={2}
+              gap={6}
+              align="stretch"
+              p={4}
+              bg={bgColor}
+              borderRadius="md"
+              boxShadow="sm"
             >
-              Place Order
-            </Button>
-          </VStack>
-        </Flex>
-      </form>
+              <Heading size="md" color={textColor}>
+                Shipping Details
+              </Heading>
+              <Fieldset.Root>
+                <VStack gap={4}>
+                  <FormField
+                    label="Full Name"
+                    name="shippingDetails.fullName"
+                    register={register}
+                    error={errors.shippingDetails?.fullName}
+                  />
+                  <FormField
+                    label="Email"
+                    name="shippingDetails.email"
+                    register={register}
+                    error={errors.shippingDetails?.email}
+                  />
+                  <FormField
+                    label="Address"
+                    name="shippingDetails.address"
+                    register={register}
+                    error={errors.shippingDetails?.address}
+                  />
+                  <FormField
+                    label="City"
+                    name="shippingDetails.city"
+                    register={register}
+                    error={errors.shippingDetails?.city}
+                  />
+                  <FormField
+                    label="Phone Number"
+                    name="shippingDetails.phoneNumber"
+                    register={register}
+                    error={errors.shippingDetails?.phoneNumber}
+                  />
+                </VStack>
+              </Fieldset.Root>
+
+              <Heading size="md" color={textColor} mt={4}>
+                Payment Method
+              </Heading>
+              <Fieldset.Root>
+                <FormField
+                  name="shippingDetails.paymentMethod"
+                  register={register}
+                  error={errors.shippingDetails?.paymentMethod}
+                  component="custom"
+                >
+                  <SelectItems
+                    collections={paymentMethods}
+                    value={
+                      watch("shippingDetails.paymentMethod")
+                        ? [watch("shippingDetails.paymentMethod")]
+                        : []
+                    }
+                    onchange={(value) =>
+                      setValue(
+                        "shippingDetails.paymentMethod",
+                        (value[0] as "cash" | "mpesa") || ""
+                      )
+                    }
+                  />
+                </FormField>
+              </Fieldset.Root>
+            </VStack>
+
+            <VStack
+              flex={1}
+              gap={4}
+              align="stretch"
+              p={4}
+              bg={bgColor}
+              borderRadius="md"
+              boxShadow="sm"
+            >
+              <Heading size="md" color={textColor}>
+                Order Summary
+              </Heading>
+              {cart.map((item) => (
+                <HStack key={item._id} justify="space-between">
+                  <Text>
+                    {item.name} (x{item.quantity})
+                  </Text>
+                  <Text>ksh {(item.price * item.quantity).toFixed(2)}</Text>
+                </HStack>
+              ))}
+              <HStack justify="space-between">
+                <Text>Subtotal:</Text>
+                <Text fontWeight="semibold">ksh {subtotal.toFixed(2)}</Text>
+              </HStack>
+              <HStack justify="space-between">
+                <Text>Shipping:</Text>
+                <Text fontWeight="semibold">ksh {shipping.toFixed(2)}</Text>
+              </HStack>
+              <HStack justify="space-between" fontWeight="bold">
+                <Text>Total:</Text>
+                <Text>ksh {total.toFixed(2)}</Text>
+              </HStack>
+              <Button
+                type="submit"
+                // onClick={() => handleCheckout}
+                color={buttonText}
+                bg={buttonBg}
+                width="full"
+                mt={4}
+                _hover={{ opacity: 0.9 }}
+                loading={isLoading}
+                loadingText="Processing..."
+                disabled={cart.length === 0}
+              >
+                Place Order
+              </Button>
+            </VStack>
+          </Flex>
+        </form>
+      )}
     </Box>
   );
 };

@@ -8,15 +8,15 @@ import {
 } from "@chakra-ui/react";
 import { User } from "../../../types";
 import { userService } from "../../../services/apiServices";
-import RegisterSchema from "../../Authentication/RegisterSchema";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import toast from "react-hot-toast";
 import axios from "axios";
 import FormField from "../../../components/FormField";
 import { useCustomColor } from "../../../hooks/useCustomColor";
-import {  useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import SelectItems from "../../../components/SelectItems";
+import getRegisterSchema from "../../Authentication/RegisterSchema";
 
 interface UserFormProps {
   onClose: () => void;
@@ -29,8 +29,9 @@ const roles = createListCollection({
     { value: "user", label: "User" },
   ],
 });
-
 const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
+  const isUpdating = Boolean(editingUser);
+  const schema = getRegisterSchema(isUpdating);
   const {
     handleSubmit,
     register,
@@ -39,29 +40,35 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
     formState: { errors },
     reset,
   } = useForm<User>({
-    resolver: zodResolver(RegisterSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
-      _id:editingUser?._id || "",
-      firebaseUid: editingUser?.firebaseUid || "",
+      _id: editingUser?._id,
+      firebaseUID: editingUser?.firebaseUID || "",
       firstName: editingUser?.firstName || "",
       lastName: editingUser?.lastName || "",
       email: editingUser?.email || "",
       phoneNumber: editingUser?.phoneNumber || "",
-      password: editingUser?.password || "",
+      password: editingUser ? undefined : "",
       registeredAt: editingUser?.registeredAt || new Date(),
       role: editingUser?.role || "user",
     },
   });
 
+  console.log("Form errors:", errors);
   const { buttonBg, buttonText } = useCustomColor();
   const [isLoading, setIsLoading] = useState(false);
+
 
   useEffect(() => {
     if (editingUser) {
       reset(editingUser);
-      console.log("Editing user:", editingUser);
+      console.log("Editing user:", editingUser.firebaseUID);
+      if (editingUser && editingUser.firebaseUID) {
+        // Explicitly set the value
+        setValue("firebaseUID", editingUser.firebaseUID);
+      }
     }
-  }, [editingUser, reset]);
+  }, [editingUser, reset, setValue]);
   const onsubmit = async (data: User) => {
     console.log("Form data submitted:", data);
     console.log("Editing user:", editingUser);
@@ -70,8 +77,10 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
     setIsLoading(true);
     try {
       if (editingUser) {
-        const response = await userService.update(data._id, data);
-        toast.success(response.message);
+        if (data._id) {
+          const response = await userService.update(data._id, data);
+          toast.success(response.message);
+        }
       } else {
         const response = await userService.create(data);
         toast.success(response.message);
@@ -90,12 +99,9 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
     }
   };
 
-  const handleFormSubmit = (data: User) => {
-    console.log("Form submit triggered with data:", data);
-    onsubmit(data);
-  };
+  
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} noValidate>
+    <form onSubmit={handleSubmit(onsubmit)} noValidate>
       <VStack gap={3}>
         <Fieldset.Root>
           <HStack>
@@ -121,14 +127,16 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
               register={register}
               error={errors.email}
             />
-           {!editingUser && <FormField<User>
-              label="Password"
-              name="password"
-              register={register}
-              type="password"
-              error={errors.password}
-              togglePassword={true}
-            />}
+            {!editingUser && (
+              <FormField<User>
+                label="Password"
+                name="password"
+                register={register}
+                type="password"
+                error={errors.password}
+                togglePassword={true}
+              />
+            )}
           </HStack>
           <HStack>
             <FormField<User>
@@ -161,7 +169,13 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
           disabled={isLoading}
           width={"full"}
         >
-          {isLoading ? <Spinner /> : editingUser ? "Update User" : "Create User"}
+          {isLoading ? (
+            <Spinner />
+          ) : editingUser ? (
+            "Update User"
+          ) : (
+            "Create User"
+          )}
         </Button>
       </VStack>
     </form>

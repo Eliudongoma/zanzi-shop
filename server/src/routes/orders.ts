@@ -4,10 +4,10 @@ import { createOrder, getAllOrders, getOrder, updateOrder, deleteOrder } from ".
 
 const router = express.Router();
 
-router.post("/order", createOrder);
-router.get("/order:_id", getOrder);
+router.post("/orders", createOrder);
+router.get("/orders:_id", getOrder);
 router.get("/orders", getAllOrders);
-router.put("/order:_id", updateOrder);
-router.delete("/order:_id", deleteOrder);
+router.put("/orders:_id", updateOrder);
+router.delete("/orders:_id", deleteOrder);
 
 export default router;

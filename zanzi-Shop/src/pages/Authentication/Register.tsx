@@ -6,14 +6,14 @@ import { registerUser } from "../../hooks/useAuth";
 import { Flex, Box, VStack, Button, Spinner, Fieldset } from "@chakra-ui/react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
-import RegisterSchema from "./RegisterSchema";
+import CreateUpdateSchema from "./CreateUpdateSchema";
 import { z } from "zod";
 import { userService } from "../../services/apiServices";
 import { useCustomColor } from "../../hooks/useCustomColor";
 import useUserRole from "../../hooks/useUserRole";
 import FormField from "../../components/FormField";
 
-type RegisterFormValues = z.infer<typeof RegisterSchema>;
+type RegisterFormValues = z.infer<typeof CreateUpdateSchema>;
 
 const Register = () => {
   const { role } = useUserRole();
@@ -26,9 +26,9 @@ const Register = () => {
     register,
     formState: { errors },
   } = useForm<RegisterFormValues>({
-    resolver: zodResolver(RegisterSchema),
+    resolver: zodResolver(CreateUpdateSchema),
     defaultValues: {
-      firebaseUid: "",
+      firebaseUID: "",
       firstName: "",
       lastName: "",
       email: "",

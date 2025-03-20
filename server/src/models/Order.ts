@@ -13,14 +13,15 @@ interface ShippingDetails {
   address: string;
   city: string;
   phoneNumber: string;
-  paymentMethod: string;
+  paymentMethod: "mpesa" | "cash";
 }
 
 interface Order extends Document {
   shippingDetails: ShippingDetails;
   cartItems: CartItem[];
   total: number;
-  userId?: string; // Optional, for authenticated users
+  status: "pending" | "processing" | "shipped" | "delivered";
+  userId?: string;
   createdAt: Date;
 }
 
@@ -31,7 +32,7 @@ const OrderSchema: Schema = new Schema({
     address: { type: String, required: true },
     city: { type: String, required: true },
     phoneNumber: { type: String, required: true },
-    paymentMethod: { type: String, required: true, enum: ["mpesa", "cash"] },
+    paymentMethod: { type: String, enum: ["mpesa", "cash"], required: true },
   },
   cartItems: [
     {
@@ -42,7 +43,12 @@ const OrderSchema: Schema = new Schema({
     },
   ],
   total: { type: Number, required: true },
-  userId: { type: String, required: false }, // Optional for guest checkout
+  status: {
+    type: String,
+    enum: ["pending", "processing", "shipped", "delivered"],
+    default: "pending",
+  },
+  userId: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
 });
 

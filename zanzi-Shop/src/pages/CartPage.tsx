@@ -1,230 +1,261 @@
-import React, { useState } from "react";
 import {
   Box,
   Heading,
-  VStack,
-  Button,
   Text,
-  Fieldset,
-  HStack,
-  useMediaQuery,
-  createListCollection,
+  Image,
   Flex,
+  Button,
+  Input,
+  VStack,
+  HStack,
+  Badge,
+  useMediaQuery,
+  Icon,
 } from "@chakra-ui/react";
+import { useCart } from "../hooks/useCart";
 import { useNavigate } from "react-router-dom";
-import toast from "react-hot-toast";
-import { useForm } from "react-hook-form";
-import { ShippingDetails } from "../types";
-import { zodResolver } from "@hookform/resolvers/zod";
-import ShippingSchema from "../Schemas/ShippingSchema"; // Fixed typo
 import { useCustomColor } from "../hooks/useCustomColor";
-import { useCart } from "../hooks/useCart"; // Import your useCart hook
-import SelectItems from "../components/SelectItems";
-import FormField from "../components/FormField";
+import { BsCart4 } from "react-icons/bs";
+import {  useState } from "react";
+import DeleteWarning from "../components/DeleteWarning";
+import { CartItem } from "../types";
 
-const CheckoutPage: React.FC = () => {
-  const {
-    handleSubmit,
-    formState: { errors },
-    watch,
-    setValue,
-    register,
-  } = useForm<ShippingDetails>({
-    resolver: zodResolver(ShippingSchema),
-    defaultValues: {
-      fullName: "",
-      email: "",
-      address: "",
-      city: "",
-      phoneNumber: "",
-      paymentMethod: "",
-    },
-  });
-
+const Cart = () => {
+  const { cart, updateQuantity, removeFromCart, clearCart, getCartTotal } =
+    useCart();
   const navigate = useNavigate();
-  const { buttonText, buttonBg, textColor, bgColor } = useCustomColor();
-  const { cart, getCartTotal, clearCart } = useCart(); // Use the cart hook
-  const paymentMethods = createListCollection({
-    items: [
-      { value: "mpesa", label: "Mpesa" },
-      { value: "cash", label: "Cash" },
-    ],
+  const { textColor, buttonBg, buttonText, bgColor } = useCustomColor();
+  const [isLargerThanMd] = useMediaQuery(["(min-width: 768px)"], {
+    ssr: false,
   });
-  const [isLargerThanMd] = useMediaQuery(["(min-width: 768px)"], { ssr: false });
-  const [isLoading, setIsLoading] = useState(false); // Loading state
+  // State for the delete warning dialog
+  const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+  const [itemToDelete, setItemToDelete] = useState<CartItem | null>(null);
 
-  // Calculate totals
-  const subtotal = getCartTotal();
-  const shipping = 50; // Static for now, could be dynamic based on logic
-  const total = subtotal + shipping;
-
-  const handleCheckout = async (data: ShippingDetails) => {
-    setIsLoading(true);
-    try {
-      // Simulate an API call to place the order
-      const orderData = {
-        shippingDetails: data,
-        cartItems: cart,
-        total,
-      };
-      console.log("Order Data:", orderData); // Replace with actual API call
-
-      // Simulate success
-      await new Promise((resolve) => setTimeout(resolve, 1000)); // Mock delay
-      toast.success("Order placed successfully!", { duration: 3000 });
-
-      // Clear cart after successful order
-      await clearCart();
-      navigate("/");
-    } catch (error) {
-      toast.error("Failed to place order. Please try again.");
-      console.error(error);
-    } finally {
-      setIsLoading(false);
-    }
+  // Open the delete warning for a specific item
+  const handleDeleteClick = (item?: CartItem) => {
+    if (item) setItemToDelete(item);
+    else setItemToDelete(null);
+    setIsDeleteOpen(true);
   };
 
+  // Confirm the deletion
+  const handleConfirmDelete = () => {
+    if (itemToDelete) {
+      removeFromCart(itemToDelete._id);
+    }
+    if (!itemToDelete) {
+      clearCart();
+    }
+    setIsDeleteOpen(false);
+    setItemToDelete(null);
+  };
+
+  // Close the dialog without deleting
+  const handleCloseDelete = () => {
+    setIsDeleteOpen(false);
+    setItemToDelete(null);
+  };
+
+  const handleQuantityChange = (id: string, value: number) => {
+    if (value >= 1) updateQuantity(id, value);
+  };
+  // useEffect(() => {
+  //   console.log("Updated itemToDelete:", itemToDelete);
+  //   console.log("Updated isDeleteOpen:", isDeleteOpen);
+  // }, [itemToDelete, isDeleteOpen]);
+
   return (
-    <Box
-      maxW="container.lg"
-      mx="auto"
-      color={textColor}
-      bg={bgColor}
-      p={{ base: 4, md: 6 }}
-      boxShadow="md"
-      borderRadius="lg"
-    >
-      <Heading mb={6} textAlign="center" size="lg" color={textColor}>
-        Checkout
+    <Box maxW="container.xl" mx="auto" p={4} bg={bgColor} minHeight="80vh">
+      <Heading as="h1" size="xl" mb={6} color={textColor}>
+        Cart ({cart.length})
       </Heading>
+
       {cart.length === 0 ? (
-        <Text textAlign="center">Your cart is empty. Add items to proceed.</Text>
+        <Box
+          display="flex"
+          alignItems="center"
+          justifyContent="center"
+          height="60vh"
+          textAlign="center"
+          bgGradient="linear(to-b, gray.700, gray.900)"
+          color="white"
+          borderRadius="lg"
+          boxShadow="lg"
+          p={8}
+        >
+          <VStack gap={5}>
+            <Icon as={BsCart4} boxSize={20} color={textColor} />
+            <Heading size="lg">Your Cart is Empty</Heading>
+            <Text fontSize="md" color={textColor}>
+              Looks like you haven’t added anything to your cart yet.
+            </Text>
+            <Button
+              color={buttonText}
+              bg={buttonBg}
+              onClick={() => navigate("/")}
+            >
+              Start Shopping
+            </Button>
+          </VStack>
+        </Box>
       ) : (
-        <form onSubmit={handleSubmit(handleCheckout)}>
-          <Flex
-            direction={isLargerThanMd ? "row" : "column"}
-            gap={6}
-            justify="space-between"
+        <Flex
+          direction={isLargerThanMd ? "row" : "column"}
+          gap={6}
+          align="flex-start"
+        >
+          {/* Product List */}
+          <VStack
+            gap={4}
+            align="stretch"
+            flex={isLargerThanMd ? 2 : 1}
+            w={isLargerThanMd ? "65%" : "100%"}
           >
-            {/* Shipping & Payment Details */}
-            <VStack
-              flex={2}
-              gap={6}
-              align="stretch"
-              p={4}
-              bg={bgColor}
-              borderRadius="md"
-              boxShadow="sm"
-            >
-              <Heading size="md" color={textColor}>
-                Shipping Details
-              </Heading>
-              <Fieldset.Root>
-                <VStack gap={4}>
-                  <FormField
-                    label="Full Name"
-                    name="fullName"
-                    register={register}
-                    error={errors.fullName}
-                  />
-                  <FormField
-                    label="Email"
-                    name="email"
-                    register={register}
-                    error={errors.email}
-                  />
-                  <FormField
-                    label="Address"
-                    name="address"
-                    register={register}
-                    error={errors.address}
-                  />
-                  <FormField
-                    label="City"
-                    name="city"
-                    register={register}
-                    error={errors.city}
-                  />
-                  <FormField
-                    label="Phone Number"
-                    name="phoneNumber"
-                    register={register}
-                    error={errors.phoneNumber}
-                  />
-                </VStack>
-              </Fieldset.Root>
-
-              <Heading size="md" color={textColor} mt={4}>
-                Payment Method
-              </Heading>
-              <Fieldset.Root>
-                <FormField
-                  name="paymentMethod"
-                  register={register}
-                  error={errors.paymentMethod}
-                  component="custom"
-                >
-                  <SelectItems
-                    collections={paymentMethods}
-                    value={watch("paymentMethod") ? [watch("paymentMethod")] : []}
-                    onchange={(value) => setValue("paymentMethod", value[0] || "")}
-                  />
-                </FormField>
-              </Fieldset.Root>
-            </VStack>
-
-            {/* Order Summary */}
-            <VStack
-              flex={1}
-              gap={4}
-              align="stretch"
-              p={4}
-              bg={bgColor}
-              borderRadius="md"
-              boxShadow="sm"
-            >
-              <Heading size="md" color={textColor}>
-                Order Summary
-              </Heading>
-              {cart.map((item) => (
-                <HStack key={item._id} justify="space-between">
-                  <Text>
-                    {item.name} (x{item.quantity})
-                  </Text>
-                  <Text>${(item.price * item.quantity).toFixed(2)}</Text>
-                </HStack>
-              ))}
-              <HStack justify="space-between">
-                <Text>Subtotal:</Text>
-                <Text fontWeight="semibold">${subtotal.toFixed(2)}</Text>
-              </HStack>
-              <HStack justify="space-between">
-                <Text>Shipping:</Text>
-                <Text fontWeight="semibold">${shipping.toFixed(2)}</Text>
-              </HStack>
-              <HStack justify="space-between" fontWeight="bold">
-                <Text>Total:</Text>
-                <Text>${total.toFixed(2)}</Text>
-              </HStack>
-              <Button
-                color={buttonText}
-                bg={buttonBg}
-                type="submit"
-                width="full"
-                mt={4}
-                _hover={{ opacity: 0.9 }}
-                loading={isLoading}
-                loadingText="Processing"
-                disabled={cart.length === 0}
+            {cart.map((item) => (
+              <Box
+                key={item._id}
+                borderWidth={1}
+                borderRadius="md"
+                p={4}
+                bg="white"
+                boxShadow="sm"
+                _hover={{ boxShadow: "md" }}
               >
-                Place Order
-              </Button>
+                <Flex
+                  align={isLargerThanMd ? "center" : "start"}
+                  justify="space-between"
+                  gap={4}
+                  direction={isLargerThanMd ? "row" : "column"}
+                >
+                  <HStack gap={4} flex={1}>
+                    <Image
+                      src={item.imageUrl}
+                      alt={item.name}
+                      boxSize="80px"
+                      objectFit="cover"
+                      borderRadius="md"
+                    />
+                    <Box>
+                      <Text fontWeight="bold" fontSize="lg" color={textColor}>
+                        {item.name}
+                      </Text>
+                      <Text color="gray.600" fontSize="sm">
+                        {item.stock === 0 ? "Out of stock" : "In Stock"}{" "}
+                        <Badge color={textColor}>ZANZI</Badge>
+                      </Text>
+                      <Text fontSize="md" color={textColor}>
+                        KSh {item.price.toFixed(2)}
+                      </Text>
+                    </Box>
+                  </HStack>
+                  <HStack
+                    gap={2}
+                    align="center"
+                    mt={isLargerThanMd ? 0 : 4} // Move to bottom on small screens
+                    w={isLargerThanMd ? "auto" : "100%"} // Full width on small screens
+                  >
+                    <Button
+                      size="sm"
+                      colorScheme="red"
+                      variant="outline"
+                      onClick={() => handleDeleteClick(item)}
+                    >
+                      Remove
+                    </Button>
+                    <HStack>
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleQuantityChange(item._id, item.quantity - 1)
+                        }
+                        disabled={item.quantity <= 1}
+                      >
+                        -
+                      </Button>
+                      <Input
+                        type="number"
+                        value={item.quantity}
+                        onChange={(e) =>
+                          handleQuantityChange(
+                            item._id,
+                            parseInt(e.target.value)
+                          )
+                        }
+                        color={textColor}
+                        min={1}
+                        width="60px"
+                        textAlign="center"
+                        size="sm"
+                      />
+                      <Button
+                        size="sm"
+                        onClick={() =>
+                          handleQuantityChange(item._id, item.quantity + 1)
+                        }
+                      >
+                        +
+                      </Button>
+                    </HStack>
+                  </HStack>
+                </Flex>
+              </Box>
+            ))}
+            {isDeleteOpen && (
+              <DeleteWarning
+                isOpen={isDeleteOpen}
+                onClose={handleCloseDelete}
+                onConfirm={handleConfirmDelete}
+                itemName={itemToDelete?.name}
+              />
+            )}
+            <Button
+              color={buttonText}
+              bg={buttonBg}
+              size="md"
+              onClick={() => handleDeleteClick()}
+              mt={4}
+            >
+              Clear Cart
+            </Button>
+          </VStack>
+
+          {/* Cart Summary */}
+          <Box
+            flex={isLargerThanMd ? 1 : "100%"}
+            w={isLargerThanMd ? "35%" : "100%"}
+            bg="white"
+            p={4}
+            borderWidth={1}
+            borderRadius="md"
+            boxShadow="sm"
+            divideY={"2px"}
+          >
+            <Heading as="h2" size="md" mb={4} color={textColor}>
+              CART SUMMARY
+            </Heading>
+            <VStack align="stretch" gap={2}>
+              <Flex justify="space-between">
+                <Text color={textColor}>Subtotal</Text>
+                <Text fontWeight="bold" color={textColor}>
+                  KSh {getCartTotal().toFixed(2)}
+                </Text>
+              </Flex>
             </VStack>
-          </Flex>
-        </form>
+            <Button
+              color={buttonText}
+              bg={buttonBg}
+              mt={6}
+              w="100%"
+              onClick={() => navigate("/checkout")}
+            >
+              Checkout (KSh {getCartTotal().toFixed(2)})
+            </Button>
+          </Box>
+        </Flex>
       )}
     </Box>
   );
 };
 
-export default CheckoutPage;
+export default Cart;

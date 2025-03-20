@@ -14,31 +14,39 @@ export interface CartItem extends Product {
 }
 
 export interface User {
-  _id: string;
-  firebaseUid: string;
+  _id?: string;
+  firebaseUID: string;
   firstName: string;
   lastName: string;
   email: string;
-  password: string;
-  phoneNumber?: string;
-  registeredAt: Date
-  role: 'user' | 'admin';
+  password?: string;
+  phoneNumber: string;
+  registeredAt: Date;
+  role: "user" | "admin";
 }
 
-export interface Order {
+export interface CartItems {
   _id: string;
-  userId: string;
-  items: CartItem[];
-  total: number;
-  status: 'pending' | 'completed';
-  createdAt: Date;
-  updatedAt: Date;
+  name: string;
+  price: number;
+  quantity: number;
 }
-export interface ShippingDetails{
+
+export interface ShippingDetails {
   fullName: string;
   email: string;
   address: string;
   city: string;
   phoneNumber: string;
-  paymentMethod: string;
+  paymentMethod: "mpesa" | "cash"; // Simplified to match Zod enum
+}
+
+export interface Order {
+  _id?: string; // Optional for new orders
+  shippingDetails: ShippingDetails;
+  cartItems: CartItems[]; // Array, not a tuple with one item
+  total: number;
+  status: "pending" | "processing" | "shipped" | "delivered"; // Simplified to match Zod enum
+  userId?: string; // Optional for guest checkout
+  createdAt: Date;
 }
