@@ -139,7 +139,7 @@ const ProductForm = ({
             >
               <SelectItems
                 collections={categories}
-                value={watch("category") ? [watch("category")] : []}
+                value={watch("category")}
                 onchange={(value) => {
                   setValue("category", value[0] || ""); // Update form field with first value
                 }}

@@ -13,8 +13,8 @@ interface CollectProps {
 }
 type SelectProps<T extends CollectProps> = {
   collections: ListCollection<T>;
-  onchange: (value: string|string[]) => void;
-  value: string[];
+  onchange: (value: string) => void;
+  value: string;
 };
 const SelectItems = <T extends CollectProps>({
   collections,
@@ -24,11 +24,10 @@ const SelectItems = <T extends CollectProps>({
   return (
     <SelectRoot
       collection={collections}
-      value={value}
+      value={[value]}
       onValueChange={(details) => {
-        // Chakra UI's SelectRoot provides selected value(s) via onValueChange
-        const selectedValue = details.value; // This is an array of selected values
-        onchange(selectedValue); // Pass the array to the parent
+        const selectedValue = details.value[0] || ""; // Take first value, default to empty string
+        onchange(selectedValue); // Pass single string to parent
       }}
     >
       {/* <SelectLabel></SelectLabel> */}

@@ -154,7 +154,7 @@ const UserForm = ({ onSuccess, onClose, editingUser }: UserFormProps) => {
             >
               <SelectItems
                 collections={roles}
-                value={watch("role") ? [watch("role")] : []}
+                value={watch("role")}
                 onchange={(value) => {
                   setValue("role", (value[0] as "admin" | "user") || ""); // Update form field with first value
                 }}

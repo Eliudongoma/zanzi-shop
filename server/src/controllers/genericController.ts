@@ -57,6 +57,7 @@ const createCRUDController = <T>(
         new: true,
       });
       if (!updatedItem) {
+        console.log("Order not found for ID:", _id)
         res.status(404).json({ message: `${itemString} not found` });
       }
       res.status(200).json({
