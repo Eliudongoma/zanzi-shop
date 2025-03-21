@@ -1,5 +1,5 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { Link as ReactRouterLink, useLocation } from "react-router-dom";
 import {
   Box,
   Heading,
@@ -11,6 +11,7 @@ import {
   Flex,
   Icon,
   HStack,
+  Link as ChakraLink,
 } from "@chakra-ui/react";
 import { CheckCircleIcon } from "@chakra-ui/icons";
 import { useCustomColor } from "../hooks/useCustomColor"; // Assuming you have this
@@ -58,6 +59,16 @@ const OrderConfirmation: React.FC = () => {
           <Text fontSize="lg" color="gray.500" mt={2}>
             Thank you for your purchase.
           </Text>
+          <Text>
+              To track your order, please{" "}
+              <ChakraLink as={ReactRouterLink} href="/login" color="teal.500">
+                log in
+              </ChakraLink>{" "}
+              or{" "}
+              <ChakraLink as={ReactRouterLink} href="/signup" color="teal.500">
+                sign up
+              </ChakraLink>.
+            </Text>
         </Flex>
 
         <VStack gap={4} align="stretch" divideY={"2px"}>

@@ -189,8 +189,6 @@ const CheckoutPage: React.FC = () => {
                     collections={paymentMethods}
                     value={
                       watch("shippingDetails.paymentMethod")
-                        ? [watch("shippingDetails.paymentMethod")]
-                        : []
                     }
                     onchange={(value) =>
                       setValue(
